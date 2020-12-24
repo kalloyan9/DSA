@@ -1,2 +1,2 @@
-g++ -S filename.cpp //kompilira do .s fail assembler
-g++ -c filename.cpp //kompilira do .o fail object
+g++ -S filename.cpp // compile to assembler (.s)
+g++ -c filename.cpp // compile to obj (.o)
