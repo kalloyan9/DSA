@@ -103,8 +103,7 @@ int main()
         if (necklace1.size() != necklace2.size()) {
                 std::cout << -1 << std::endl << "Not possible" << std::endl;
                 return 0;
-        }
-        else {
+        } else {
                 solve();
         }
 
@@ -135,8 +134,7 @@ void read(std::istream& is)
                                 }
                                 ++i;
                                 ++written;
-                        }
-                        else
+                        } else
                                 ++i;
                 }
                 written = 0;
@@ -149,8 +147,7 @@ void read(std::istream& is)
                                 }
                                 ++i;
                                 ++written;
-                        }
-                        else
+                        } else
                                 ++i;
                 }
         }
@@ -197,8 +194,7 @@ void solve()
         for (int i = 0; i < sz; ++i) {
                 if (necklace1[i] == necklace2[i]) {
                         ans.push_back(necklace1[i]);
-                }
-                else {
+                } else {
                         if (!distCalculated) { // doing Floyd's algo exactly one time, that's why this algorithm has been choosen
                                 dist = new int*[MAX_VERTICES];
                                 for (int j = 0; j < MAX_VERTICES; ++j)
