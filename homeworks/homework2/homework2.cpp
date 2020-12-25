@@ -8,8 +8,8 @@ using std::set;
 
 // constants
 static const int INPUT_MAX = 2048;
-static const int I1 = '!', I2 = '~'; // limitations
-static const int MAX_VERTICES = (I2 - I1) + 1;
+static const char I1 = '!', I2 = '~'; // limitations
+static const int MAX_VERTICES = (int)(I2 - I1) + 1;
 enum distConstants
 {
         TRIVIAL = 0,
@@ -23,12 +23,12 @@ inline bool isCorrect(char c)
 
 inline char map(char c) // mapped values from 0 to MAX_VERTICES
 {
-        return c - (char)I1;
+        return c - I1;
 }
 
 inline char unmap(char c)
 {
-        return c + (char)I1;
+        return c + I1;
 }
 
 struct Edge
