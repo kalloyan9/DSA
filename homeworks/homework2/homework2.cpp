@@ -95,8 +95,10 @@ int main()
         std::cin >> fileName;
         std::ifstream is;
         is.open(fileName, std::ios::in);
-        if (!is)
-                throw std::runtime_error("Could not open file.\n");
+        if (!is) {
+                std::cerr << "Could not open file.\n";
+                return 1;
+        }
         read(is);
         is.close();
 
@@ -263,7 +265,7 @@ void Floyd(int **&dist, int size)
         for (k = 0; k < size; ++k) {
                 for (i = 0; i < size; ++i) {
                         for (j = 0; j < size; ++j) {
-                                if (((unsigned long long)(unsigned)dist[i][k] + (unsigned long long)(unsigned)dist[k][j]) < (unsigned long long)(unsigned)dist[i][j])
+                                if (((long long)dist[i][k] + dist[k][j]) < dist[i][j]) // autocasting operators will cast all lower types to the biggest before compare
                                         dist[i][j] = dist[i][k] + dist[k][j];
                         }
                 }
