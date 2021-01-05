@@ -5,8 +5,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-using std::cout; using std::cin;
-using std::cerr; using std::endl;
+#include <stdlib.h>
 
 bool print_file(const char* const fileName)
 {
@@ -27,7 +26,7 @@ inline void console_handler_printmsg(const char* const msg)
         std::cout << "> ";
 }
 
-void explore(char *dir_name)
+bool explore(char *dir_name)
 {
         DIR *dir; // pointer to an open dir
         struct dirent *entry;
@@ -39,36 +38,41 @@ void explore(char *dir_name)
         if (!dir) {
                 std::string errmsg = "dir \""; errmsg += dir_name; errmsg += "\" failed.\n";
                 std::cerr << errmsg;
-                return;
+                return false;
         }
-        _fullpath(fullPath, entry->d_name, _MAX_PATH);
 
         // 2 read
         while ((entry = readdir(dir)) != nullptr) {
                 if (entry->d_name[0] != '.') {
-                        cout << "current: " << entry->d_name << endl;
+                        std::cout << "current: " << entry->d_name << std::endl;
                         _fullpath(fullPath, entry->d_name, _MAX_PATH);
-                        cout << "full: " << fullPath << endl;
+                        std::cout << "full: " << fullPath << std::endl;
                         stat(fullPath, &info);
                         if (S_ISDIR(info.st_mode))
-                                explore(fullPath);
+                                std::cout << fullPath << " is a dir!\n";
+                        else
+                                print_file(fullPath);
                 }
         }
         std::cout << std::endl;
 
         // 3 close
         closedir(dir);
+        return true;
 }
 
 void read()
 {
-        std::string dir = "";
-        explore(&dir[0]);
+        std::string dir_name = "C:\\Users\\PC\\Desktop\\testhuff";
+        explore(&dir_name[0]);
 }
 
 int main ()
 {
+        // console_handler::read();
         read();
         
+        std::cin.get();
+        getchar();
         return 0;
 }
