@@ -261,3 +261,68 @@ namespace TREE
         return nullptr;
     }
 }
+
+namespace BT
+{
+	struct Node
+	{
+		int value;
+		Node* left, *right;
+	
+		Node(int v, Node* l = nullptr, Node* r = nullptr)
+			: value(v), left(l), right(r) { }
+	};
+
+	void printInOrder(const Node* root)
+	{
+		if (!root)
+			return;
+
+		printInOrder(root->left);
+		cout << root->value;
+		printInOrder(root->right);
+	}
+
+	void leftView(const Node* root, int level, int& lastLevel)
+	{
+		if (!root)
+			return;
+		
+		// if this is the first node of its level
+		if (lastLevel < level) {
+			cout << root->value;
+			lastLevel = level;
+		}
+
+		leftView(root->left, level + 1, lastLevel);
+		leftView(root->right, level + 1, lastLevel);
+	}
+
+	void leftViewWrapper(const Node* root)
+	{
+		int lastLevel = 0;
+		leftView(Node, 1, lastLevel);
+	}
+
+	void rightView(const Node* root, int level, int& lastLevel)
+	{
+		if (!root)
+			return;
+		
+		// if this is the first node of its level
+		if (lastLevel < level) {
+			cout << root->value;
+			lastLevel = level;
+		}
+
+		leftView(root->right, level + 1, lastLevel);
+		leftView(root->left, level + 1, lastLevel);
+	}
+
+	void rightViewWrapper(const Node* root)
+	{
+		int lastLevel = 0;
+		rightView(Node, 1, lastLevel);
+	}
+
+}
