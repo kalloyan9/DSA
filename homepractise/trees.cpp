@@ -121,7 +121,7 @@ namespace TREE
 
     // find function:
     // bfs implementation
-    const Node* find(const Node* root, int searched)
+    const Node* find(const Node* root, int key)
     {
         if (!root)
             return root; // returning nullptr as invalid value (not found)
@@ -132,7 +132,7 @@ namespace TREE
                 const Node* curr = q.front();
                 q.pop();
 
-                if (curr->data == searched)
+                if (curr->data == key)
                     return curr;
                 else {
                     for (const Node* it : curr->children)
@@ -146,7 +146,7 @@ namespace TREE
     }
 
     // dfs implementation
-    const Node* find(const Node* root, int searched)
+    const Node* find(const Node* root, int key)
     {
         if (!root)
             return root; // returning nullptr as invalid value (not found)
@@ -157,7 +157,7 @@ namespace TREE
                 const Node* curr = s.top();
                 s.pop();
 
-                if (curr->data == searched)
+                if (curr->data == key)
                     return curr;
                 else {
                     for (const Node* it : curr->children)
