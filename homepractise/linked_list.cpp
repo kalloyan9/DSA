@@ -77,6 +77,16 @@ void traverse() {
     }
 }
 
+unsigned size() {
+    unsigned result = 0u;
+    Node *temp = head;
+    while (temp != nullptr) {
+        ++result;
+        temp = temp->next;
+    }
+    return result;
+}
+
 Node* find(T const&element) {
     Node *temp = head;
     while (temp->next != nullptr && temp->next->data != element) {
