@@ -1,2 +1,0 @@
-g++ -S filename.cpp // compile to assembler (.s)
-g++ -c filename.cpp // compile to obj (.o)

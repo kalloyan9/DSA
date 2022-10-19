@@ -1,6 +1,0 @@
-5 3
-Abcdd abcdf
-A a 3
-d e 3
-f e 1
-
