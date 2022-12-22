@@ -12,6 +12,8 @@
 ======================
 */
 
+static constexpr int MAX_K = 100000;
+
 template <typename T>
 struct Node {
     T data;
@@ -24,22 +26,17 @@ struct Node {
     }
 };
 
-
-static constexpr int MAX_K = 100000;
 template <typename T>
-static std::vector<T> storage_vector[MAX_K];
-
-template <typename T>
-void dfs_store_in_helper(box<T> *root, int k) {
+void dfs_store_in_helper(box<T> *root, int k, std::vector<T> storage_vector[]){
 
     if (root == nullptr || k >= MAX_K) {
         return;
     }
 
-    storage_vector<T>[k].push_back(root->data);
+    storage_vector[k].push_back(root->data);
 
-    dfs_store_in_helper(root->right, k+1);
-    dfs_store_in_helper(root->left, k+1);
+    dfs_store_in_helper(root->right, k+1, storage_vector);
+    dfs_store_in_helper(root->left, k+1, storage_vector);
 }
 
 
@@ -49,18 +46,24 @@ std::vector<T> levelsGrowing(box<T> *t) {
         return {};
     }
 
-    std::vector<T> final_vector;
-    dfs_store_in_helper(t, 0);
+    static std::vector<T> storage_vector[MAX_K]; // static to init it only once
+    static std::vector<T> final_vector;
+    for (int i = 0; i < MAX_K; ++i) {
+        storage_vector[i].clear();
+    }
+    final_vector.clear();
+
+    dfs_store_in_helper(t, 0, storage_vector);
 
     int last_size = 0;
     for (int i = 0; i < MAX_K; ++i) {
-        int curr_size = storage_vector<T>[i].size();
+        int curr_size = storage_vector[i].size();
         if (0 == curr_size) {
             break;
         }
 
         if (curr_size > last_size) {
-            for (auto j : storage_vector<T>[i]) {
+            for (auto j : storage_vector[i]) {
                 final_vector.push_back(j);
             }
             last_size = curr_size;
@@ -70,16 +73,6 @@ std::vector<T> levelsGrowing(box<T> *t) {
 
     return final_vector;
 }
-
-template <typename T>
-void eraseStorageVector() {
-    for (int i = 0; i < MAX_K; ++i) {
-        while (!storage_vector<T>[i].empty()) {
-            storage_vector<T>[i].pop_back();
-        }
-    }
-}
-
 
 
 /*
@@ -97,8 +90,6 @@ TEST_CASE("Test Edges")
     setAt(t,"",10);
 
     CHECK(levelsGrowing(t).size()==1);
-
-    eraseStorageVector<int>();
 }
 
 
