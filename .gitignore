@@ -34,3 +34,8 @@
 # EasyCpp vs code
 *.vscode
 *bin
+
+# Codeblocks files
+*.cbp
+*.depend
+*.layout
