@@ -2,60 +2,36 @@
 #define JSON_HPP
 
 #include <iostream>
+#include <stack>
 #include <vector>
 #include <string>
 
 using std::vector;
 using std::string;
-
+using std::stack;
 
 namespace json {
-    // helper class:
-    class myPair {
-        private:
-            // data:
+    struct Node {
+            Node() = default;
+            ~Node() = default;
+
+            // TODO: change to dynamic memmory and classes
             string _key;
             string _value;
-
-            // methods:
-            myPair() = default;
-            myPair(const string& key, const string& value) {
-                _key = key;
-                _value = _value;
-            }
-            myPair(const myPair& other) {
-                this->_key = other._key;
-                this->_value = other._value;
-            }
-            myPair& operator=(const myPair& other) {
-                this->_key = other._key;
-                this->_value = other._value;
-                return *this;
-            }
-            ~myPair() = default;
-            bool operator==(const myPair& other) {
-                return _key == other._key && _value == other._value;
-            }
-            friend std::ostream& operator<<(std::ostream& os, const myPair& p) {
-                os << "\"" << p._key << "\", "  << "\"" << p._value << "\"";
-                return os;
-            }
-
-
-        friend class Node;
-    };
-
-    class Node {
-        private:
-            Node() = default;
-            ~Node();
-
-            myPair *_data = nullptr;
-            vector<Node*> _siblings{};
-
-            void print();
+            vector<const Node*> _siblings{};
     };
 
 
+    struct JSONTree {
+            JSONTree() = default;
+            ~JSONTree() = default;
+
+            void addChild(const Node *child) {
+                _root->_siblings.push_back(child);
+            }
+
+            Node *_root = nullptr;
+
+    };
 } // namespace json
 #endif // JSON_HPP

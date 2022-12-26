@@ -12,7 +12,8 @@ LogicHandler::~LogicHandler()
     //dtor
 }
 
-void LogicHandler::printMan() {
+void LogicHandler::printMan() const {
+    cout << endl << endl;
     cout << "===================[man]===================\n";
     cout << "type 'read' - to read a file\n";
     cout << "type 'search_key' - to search by key\n";
@@ -22,6 +23,7 @@ void LogicHandler::printMan() {
     cout << "type 'exit' - to exit\n";
     cout << "type 'man' - to see manual\n";
     cout << "===========================================\n";
+    cout << endl;
 }
 
 int LogicHandler::handleConsole() {
@@ -29,44 +31,51 @@ int LogicHandler::handleConsole() {
     getline(cin, _command);
 
     if (kEXIT == _command) {
-        consoleInput = ConsoleInput::EXIT;
+        _consoleInput = ConsoleInput::EXIT;
     } else if (kREAD == _command) {
-        consoleInput = ConsoleInput::READ;
+        _consoleInput = ConsoleInput::READ;
     } else if (kSEARCH_BY_KEY == _command) {
-        consoleInput = ConsoleInput::SEARCH_BY_KEY;
+        _consoleInput = ConsoleInput::SEARCH_BY_KEY;
     } else if (kCHANGE_OBJECT == _command) {
-        consoleInput = ConsoleInput::CHANGE_OBJECT;
+        _consoleInput = ConsoleInput::CHANGE_OBJECT;
     } else if (kCREATE_OBJECT == _command) {
-        consoleInput = ConsoleInput::CREATE_OBJECT;
+        _consoleInput = ConsoleInput::CREATE_OBJECT;
     } else if (kSAVE == _command) {
-        consoleInput = ConsoleInput::SAVE;
+        _consoleInput = ConsoleInput::SAVE;
     } else {
-        consoleInput = ConsoleInput::UNKNOWN;
+        _consoleInput = ConsoleInput::UNKNOWN;
         printMan();
     }
 
-    return consoleInput;
+    return _consoleInput;
 }
 
-bool LogicHandler::runCyclic(Forest& roots) {
+int LogicHandler::runCyclic(Forest& roots) {
     int consoleResult = handleConsole();
+    int helperFuncResult = 0;
     string fileString{}, searchKey{}, fullPath{}, object{}, fileName{};
 
     switch (consoleResult) {
         case ConsoleInput::EXIT:
-            return false;
+            return kFAIL;
         break;
 
         case ConsoleInput::READ:
             cout << "Please input a file:" << endl << ">";
             cin >> fileString;
-            return true;
+            helperFuncResult = read(fileString);
+            if (kSUCCESS == helperFuncResult) {
+                cout << "File read successfully, JSON parser tree created.\n";
+            } else {
+                cout << "Failed to read file.\n";
+            }
+            return kSUCCESS;
         break;
 
         case ConsoleInput::SEARCH_BY_KEY:
             cout << "Please input a key to search: " << endl << ">";
             cin >> searchKey;
-            return true;
+            return kSUCCESS;
         break;
 
         case ConsoleInput::CHANGE_OBJECT:
@@ -74,7 +83,7 @@ bool LogicHandler::runCyclic(Forest& roots) {
             cin >> fullPath;
             cout << "Please input a string for the new object: " << endl << ">";
             cin >> object;
-            return true;
+            return kSUCCESS;
         break;
 
         case ConsoleInput::CREATE_OBJECT:
@@ -82,27 +91,54 @@ bool LogicHandler::runCyclic(Forest& roots) {
             cin >> fullPath;
             cout << "Please input a string for the new object: " << endl << ">";
             cin >> object;
-            return true;
+            return kSUCCESS;
         break;
 
         case ConsoleInput::SAVE:
             cout << "Please input a file name: " << endl << ">";
             cin >> fileName;
-            return true;
+            return kSUCCESS;
         break;
 
         default:
         case ConsoleInput::UNKNOWN:
-            return true;
+            return kSUCCESS;
         break;
     }
 }
 
-/*
-static const string kREAD{"read"};
-static const string kSEARCH_BY_KEY{"search_key"};
-static const string kCHANGE_OBJECT{"change_object"};
-static const string kCREATE_OBJECT{"create_object"};
-static const string kSAVE{"save"};
-static const string kEXIT{"exit"};
-*/
+int LogicHandler::read(const string& fileName) {
+    string line;
+    std::ifstream myfile(fileName);
+    if (myfile.is_open()) {
+        cout << "file " << fileName << " opened:\n";
+        while (getline(myfile,line)) {
+            cout << line << '\n';
+        }
+
+        // prioritization
+        if (line == "[") {
+            // create sibling
+        } else if (line == "{") {
+            // create node
+        } else if (line == ":") {
+            // setValue
+        } else if (line == ",") {
+            // do nothing
+        } else {
+            // setKey
+        }
+
+
+
+
+
+
+        myfile.close();
+    } else {
+        cout << "Unable to open file...\n";
+        return kFAIL;
+    }
+
+    return kSUCCESS;
+}

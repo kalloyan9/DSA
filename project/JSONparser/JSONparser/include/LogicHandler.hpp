@@ -15,6 +15,9 @@ using std::string;
 
 using Forest = std::vector<json::Node*>;
 
+static constexpr int kSUCCESS = 0;
+static constexpr int kFAIL = 1;
+
 static const string kREAD{"read"};
 static const string kSEARCH_BY_KEY{"search_key"};
 static const string kCHANGE_OBJECT{"change_object"};
@@ -39,14 +42,18 @@ class LogicHandler
         ~LogicHandler();
 
 
-        void printMan();
-        // return false if terminating the program, true otherwise.
-        bool runCyclic(Forest &roots);
+        void printMan() const;
+        // return kFAIL if terminating the program, kSUCCESS otherwise.
+        int runCyclic(Forest &roots);
         int handleConsole();
 
     private:
+        int read(const string& fileName);
+
+        // data members
         string _command;
-        ConsoleInput consoleInput;
+        ConsoleInput _consoleInput;
+        json::JSONTree _tree;
 };
 
 #endif // LOGICHANDLER_HPP

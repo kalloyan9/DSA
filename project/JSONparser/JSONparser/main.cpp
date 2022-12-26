@@ -10,7 +10,7 @@ static Forest nodes; // forest of trees.
 int main()
 {
     // run cyclic
-    while (logicHandler.runCyclic(nodes)) {
+    while (kSUCCESS == logicHandler.runCyclic(nodes)) {
 
     }
 
