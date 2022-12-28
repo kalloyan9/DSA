@@ -1,15 +1,16 @@
 #include "LogicHandler.hpp"
+using namespace console;
 
-LogicHandler::LogicHandler()
-{
+LogicHandler::LogicHandler() {
+    _root = nullptr;
+    _keep = nullptr;
     // initial printing manual to the user.
     printMan();
-    //ctor
 }
 
-LogicHandler::~LogicHandler()
-{
-    //dtor
+LogicHandler::~LogicHandler() {
+    deleteTree(_keep);
+    deleteTree(_root);
 }
 
 void LogicHandler::printMan() const {
@@ -50,7 +51,7 @@ int LogicHandler::handleConsole() {
     return _consoleInput;
 }
 
-int LogicHandler::runCyclic(Forest& roots) {
+int LogicHandler::runCyclic() {
     int consoleResult = handleConsole();
     int helperFuncResult = 0;
     string fileString{}, searchKey{}, fullPath{}, object{}, fileName{};
@@ -66,6 +67,7 @@ int LogicHandler::runCyclic(Forest& roots) {
             helperFuncResult = read(fileString);
             if (kSUCCESS == helperFuncResult) {
                 cout << "File read successfully, JSON parser tree created.\n";
+                printTree(_keep);
             } else {
                 cout << "Failed to read file.\n";
             }
@@ -112,28 +114,43 @@ int LogicHandler::read(const string& fileName) {
     std::ifstream myfile(fileName);
     if (myfile.is_open()) {
         cout << "file " << fileName << " opened:\n";
+        // read line by line
         while (getline(myfile,line)) {
-            cout << line << '\n';
+//            cout << line << '\n';
+
+            if (!_recStack.empty()) {
+                _root = _recStack.top();
+            }
+            bool isArray = false;
+            bool isEndOfArray = false;
+            pair<string, string> mapped = json::divideKeyValue(line, isArray, isEndOfArray);
+//            cout << "key: " << mapped.first << endl;
+//            cout << "value: " << mapped.second << endl;
+
+            // add new node
+            json::Node *node = new json::Node(mapped.first, mapped.second, isArray);
+//            node->print();
+            // build tree
+            // initialization
+            if (nullptr == _root) {
+                if (nullptr == _keep) {
+                    _root = node;
+                    _keep = node;
+                    _recStack.push(node);
+                    continue;
+                }
+            }
+
+            _root->addSibling(node);
+            _recStack.push(node);
+
+            if (!node->getIsArray() && node->getKey() != "{") {
+                // leaf
+                _recStack.pop();
+            } else {
+                // object or array
+            }
         }
-
-        // prioritization
-        if (line == "[") {
-            // create sibling
-        } else if (line == "{") {
-            // create node
-        } else if (line == ":") {
-            // setValue
-        } else if (line == ",") {
-            // do nothing
-        } else {
-            // setKey
-        }
-
-
-
-
-
-
         myfile.close();
     } else {
         cout << "Unable to open file...\n";
@@ -141,4 +158,30 @@ int LogicHandler::read(const string& fileName) {
     }
 
     return kSUCCESS;
+}
+
+void LogicHandler::deleteTree(json::Node *root) {
+    if (nullptr == root) {
+        return;
+    }
+
+    vector<json::Node*> siblings = root->getSiblings();
+    for (int i = 0; i < siblings.size(); ++i) {
+        deleteTree(siblings[i]);
+    }
+    delete _root;
+    _root = nullptr;
+}
+
+void LogicHandler::printTree(json::Node *root) {
+    if (nullptr == root) {
+        cout << endl;
+        return;
+    }
+
+    root->print();
+    vector<json::Node*> siblings = root->getSiblings();
+    for (int i = 0; i < siblings.size(); ++i) {
+        printTree(siblings[i]);
+    }
 }

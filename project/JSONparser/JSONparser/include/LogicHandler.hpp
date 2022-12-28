@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <stack>
 
 #include "Json.hpp"
 
@@ -12,28 +13,29 @@ using std::cout;
 using std::endl;
 using std::fstream;
 using std::string;
-
-using Forest = std::vector<json::Node*>;
+using std::stack;
 
 static constexpr int kSUCCESS = 0;
 static constexpr int kFAIL = 1;
 
-static const string kREAD{"read"};
-static const string kSEARCH_BY_KEY{"search_key"};
-static const string kCHANGE_OBJECT{"change_object"};
-static const string kCREATE_OBJECT{"create_object"};
-static const string kSAVE{"save"};
-static const string kEXIT{"exit"};
+namespace console {
+    static const string kREAD{"read"};
+    static const string kSEARCH_BY_KEY{"search_key"};
+    static const string kCHANGE_OBJECT{"change_object"};
+    static const string kCREATE_OBJECT{"create_object"};
+    static const string kSAVE{"save"};
+    static const string kEXIT{"exit"};
 
-enum ConsoleInput {
-    READ = 0,
-    SEARCH_BY_KEY,
-    CHANGE_OBJECT,
-    CREATE_OBJECT,
-    SAVE,
-    EXIT,
-    UNKNOWN
-};
+    enum ConsoleInput {
+        READ = 0,
+        SEARCH_BY_KEY,
+        CHANGE_OBJECT,
+        CREATE_OBJECT,
+        SAVE,
+        EXIT,
+        UNKNOWN
+    };
+}
 
 class LogicHandler
 {
@@ -44,16 +46,22 @@ class LogicHandler
 
         void printMan() const;
         // return kFAIL if terminating the program, kSUCCESS otherwise.
-        int runCyclic(Forest &roots);
+        int runCyclic();
         int handleConsole();
 
     private:
+        // read from file and build json tree
         int read(const string& fileName);
+        void deleteTree(json::Node *root);
+        void printTree(json::Node *root);
 
         // data members
         string _command;
-        ConsoleInput _consoleInput;
-        json::JSONTree _tree;
+        console::ConsoleInput _consoleInput;
+        stack<char> _delimstack;
+        json::Node *_root;
+        json::Node *_keep;
+        stack<json::Node*> _recStack;
 };
 
 #endif // LOGICHANDLER_HPP

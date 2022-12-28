@@ -1,16 +1,13 @@
-#include <vector>
-
 #include "LogicHandler.hpp"
 #include "Json.hpp"
 
 // create objects:
-static LogicHandler logicHandler{};
-static Forest nodes; // forest of trees.
+static LogicHandler logicHandler;
 
 int main()
 {
     // run cyclic
-    while (kSUCCESS == logicHandler.runCyclic(nodes)) {
+    while (kSUCCESS == logicHandler.runCyclic()) {
 
     }
 
