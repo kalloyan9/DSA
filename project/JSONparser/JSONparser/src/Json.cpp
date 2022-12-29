@@ -1,18 +1,14 @@
 #include "Json.hpp"
 namespace json {
 
-    Node::Node(const string& key, const string& value, bool isArray)
-        : _key(key), _value(value), _isArray(isArray), _siblings()
+    Node::Node(const string& key, const string& value)
+        : _key(key), _value(value), _siblings()
     {
 
     }
 
     void Node::print() {
-        cout << "key: " << _key << ", value: " << _value << " siblings: " << _siblings.size() << " ";
-        if (_isArray) {
-            cout << "start of array ";
-        }
-        cout << endl;
+        cout << "key: " << _key << "  value: " << _value << "  siblings: " << _siblings.size() << endl;
     }
 
     void Node::addSibling(Node *sibling) {
@@ -27,12 +23,8 @@ namespace json {
         _key = key;
     }
 
-    void Node::setIsArray(const string& value) {
+    void Node::setValue(const string& value) {
         _value = value;
-    }
-
-    void Node::setValue(bool isArray) {
-        _isArray = isArray;
     }
 
     string Node::getKey() {
@@ -41,10 +33,6 @@ namespace json {
 
     string Node::getValue() {
         return _value;
-    }
-
-    bool Node::getIsArray() {
-        return _isArray;
     }
 
 } // namespace json

@@ -43,7 +43,6 @@ class LogicHandler
         LogicHandler();
         ~LogicHandler();
 
-
         void printMan() const;
         // return kFAIL if terminating the program, kSUCCESS otherwise.
         int runCyclic();
@@ -54,13 +53,15 @@ class LogicHandler
         int read(const string& fileName);
         void deleteTree(json::Node *root);
         void printTree(json::Node *root);
+        void printTree();
+        void deleteTree();
+        void printBFS();
 
         // data members
         string _command;
         console::ConsoleInput _consoleInput;
         stack<char> _delimstack;
         json::Node *_root;
-        json::Node *_keep;
         stack<json::Node*> _recStack;
 };
 

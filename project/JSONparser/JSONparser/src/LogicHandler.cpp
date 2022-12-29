@@ -3,14 +3,12 @@ using namespace console;
 
 LogicHandler::LogicHandler() {
     _root = nullptr;
-    _keep = nullptr;
     // initial printing manual to the user.
     printMan();
 }
 
 LogicHandler::~LogicHandler() {
-    deleteTree(_keep);
-    deleteTree(_root);
+    deleteTree();
 }
 
 void LogicHandler::printMan() const {
@@ -62,14 +60,18 @@ int LogicHandler::runCyclic() {
         break;
 
         case ConsoleInput::READ:
+            // clear tree
+            deleteTree();
             cout << "Please input a file:" << endl << ">";
             cin >> fileString;
             helperFuncResult = read(fileString);
             if (kSUCCESS == helperFuncResult) {
                 cout << "File read successfully, JSON parser tree created.\n";
-                printTree(_keep);
+                //printTree(_root);
+                printBFS();
             } else {
                 cout << "Failed to read file.\n";
+                deleteTree();
             }
             return kSUCCESS;
         break;
@@ -112,46 +114,49 @@ int LogicHandler::runCyclic() {
 int LogicHandler::read(const string& fileName) {
     string line;
     std::ifstream myfile(fileName);
+    // todo: hack idea - function to remove all /" from the file, then add them forced in divideKeyValue func :)
     if (myfile.is_open()) {
         cout << "file " << fileName << " opened:\n";
         // read line by line
         while (getline(myfile,line)) {
-//            cout << line << '\n';
-
             if (!_recStack.empty()) {
                 _root = _recStack.top();
             }
-            bool isArray = false;
+
             bool isEndOfArray = false;
-            pair<string, string> mapped = json::divideKeyValue(line, isArray, isEndOfArray);
-//            cout << "key: " << mapped.first << endl;
-//            cout << "value: " << mapped.second << endl;
+            pair<string, string> mapped = json::divideKeyValue(line, isEndOfArray);
 
             // add new node
-            json::Node *node = new json::Node(mapped.first, mapped.second, isArray);
-//            node->print();
+            json::Node *node = new json::Node(mapped.first, mapped.second);
             // build tree
             // initialization
             if (nullptr == _root) {
-                if (nullptr == _keep) {
-                    _root = node;
-                    _keep = node;
-                    _recStack.push(node);
-                    continue;
-                }
+                _root = node;
+                _recStack.push(node);
+                continue;
             }
 
             _root->addSibling(node);
-            _recStack.push(node);
-
-            if (!node->getIsArray() && node->getKey() != "{") {
-                // leaf
-                _recStack.pop();
+            if (mapped.first != "[" && mapped.first != "{"
+            &&  mapped.second != "[" && mapped.second != "{") {
+                // handle leaf
+                if (mapped.first == "]" || mapped.first == "}") {
+                    // handle closing of array and closing of object
+                    if (!_recStack.empty()) {
+                        _recStack.pop();
+                    }
+                }
             } else {
-                // object or array
+                // handle not leaf
+                _recStack.push(node);
             }
         }
         myfile.close();
+        // clear stack
+        if (!_recStack.empty()) {
+            std::cerr << "Invalid format.\n";
+            return kFAIL;
+        }
     } else {
         cout << "Unable to open file...\n";
         return kFAIL;
@@ -169,6 +174,7 @@ void LogicHandler::deleteTree(json::Node *root) {
     for (int i = 0; i < siblings.size(); ++i) {
         deleteTree(siblings[i]);
     }
+
     delete _root;
     _root = nullptr;
 }
@@ -183,5 +189,45 @@ void LogicHandler::printTree(json::Node *root) {
     vector<json::Node*> siblings = root->getSiblings();
     for (int i = 0; i < siblings.size(); ++i) {
         printTree(siblings[i]);
+    }
+}
+
+void LogicHandler::printTree() {
+    printTree(_root);
+}
+
+void LogicHandler::deleteTree() {
+    deleteTree(_root);
+}
+
+void LogicHandler::printBFS() {
+    if (nullptr == _root) {
+        return;
+    }
+
+    json::Node* node = nullptr;
+    static constexpr json::Node* DELIM_DUMP = nullptr;
+    vector<json::Node*> v;
+    size_t level = 0;
+    queue<json::Node*> q;
+    q.push(_root);
+    q.push(DELIM_DUMP);
+    while (!q.empty()) {
+        node = q.front();
+        q.pop();
+        if (DELIM_DUMP == node) {
+            ++level;
+            continue;
+        }
+
+        v = node->getSiblings();
+        cout << "level:" << level << "| ";
+        node->print();
+        for (int i = 0; i < v.size(); ++i) {
+            q.push(v[i]);
+        }
+        if (v.size()) {
+            q.push(DELIM_DUMP);
+        }
     }
 }

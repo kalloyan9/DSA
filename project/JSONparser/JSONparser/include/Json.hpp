@@ -18,29 +18,7 @@ using std::queue;
 using std::pair;
 
 namespace json {
-    // lowest value returned is the highest prio
-    enum class delimPrio{
-        FIRST = 0,
-        SECOND,
-        THIRD,
-        FOURTH,
-        INVALID
-    };
-
-    static delimPrio getPrio(char delim) {
-        if (delim == '{') {
-            return delimPrio::FIRST;
-        } else if (delim == '[') {
-            return delimPrio::SECOND;
-        } else if (delim == ':') {
-            return delimPrio::THIRD;
-        } else if (delim == ',') {
-            return delimPrio::FOURTH;
-        } else {
-            return delimPrio::INVALID;
-        }
-    }
-
+    // TODO: add "
     static bool isDelim(char d) {
         if (d == '{') {
             return true;
@@ -48,23 +26,22 @@ namespace json {
             return true;
         } else if (d == ':') {
             return true;
-        } else if (d == ',') {
-            return true;
-        } else if (d == '\"') {
+        } else if (d == '\n') {
             return true;
         } else {
             return false;
         }
     }
 
-    // all objects and arrays { and [ and their endings ] and ) should be on new line and alone on line
-    static pair<string, string> divideKeyValue(const string& str, bool &isArray, bool &isEndOfArray) {
+    static pair<string, string> divideKeyValue(const string& str, bool &isEndOfArray) {
         string key, value;
         const char *c = &str[0];
         // skip whitespaces
         while (*c != '\0' && (*c == ' ' || *c == '\t')) {
             ++c;
         }
+
+        // process the key:
         // check new object
         if (*c == '{') {
             key = "{";
@@ -72,47 +49,54 @@ namespace json {
         }
         // check end of an object
         if (*c == '}') {
+            key = "}";
+            if (*(c+1) == ',') {
+                value = ",";
+            }
             return std::make_pair(key, value);
         }
         // check new array
         if (*c == '[') {
-            isArray = true;
-            ++c;
+            key = "[";
+            return std::make_pair(key, value);
         }
         // check end of an array
         if (*c == ']') {
+            key = "]";
             isEndOfArray = true;
-            ++c;
+            if (*(c+1) == ',') {
+                value = ",";
+            }
+            return std::make_pair(key, value);
         }
 
-        // read key
-        // skip "
-        while (*c == '\"' && *c != '\0') {
-            ++c;
-        }
-        // save key
-        while (!isDelim(*c)) {
+        // check regular key
+        while (*c != '\0' && !isDelim(*c)) {
+            // save the key
             key.push_back(*c);
             ++c;
         }
-        // skip " and whitespaces
-        while (*c != '\0' && (*c == ' ' || *c == '\t' || *c == '\"')) {
+
+        if (*c == ':') {
             ++c;
         }
 
-        // check if we have value for mapping or not
-        if (*c == ':') {
+        // process the value:
+        while(*c != '\0' && !isDelim(*c)) {
+            value.push_back(*c);
             ++c;
-            // skip " and whitespaces
-            while (*c != '\0' && (*c == ' ' || *c == '\t' || *c == '\"')) {
-                ++c;
-            }
-            while (!isDelim(*c)) {
+        }
+        // always ending with :
+
+        // check is the value new array or object
+        if (*c == '{' || *c == '[') {
+            value.push_back(*c);
+        } else {
+            // always delim is ","
+            while (*c != '\0' && *c != ',') {
                 value.push_back(*c);
                 ++c;
             }
-        } else {
-            // do nothing.
         }
 
         return std::make_pair(key, value);
@@ -120,18 +104,16 @@ namespace json {
 
     class Node {
         public:
-            Node(const string& key, const string& value, bool isArray);
+            Node(const string& key, const string& value);
             void print();
             void addSibling(Node *sibling);
             vector<Node*> getSiblings();
 
             void setKey(const string& key);
-            void setIsArray(const string& value);
-            void setValue(bool isArray);
+            void setValue(const string& value);
 
             string getKey();
             string getValue();
-            bool getIsArray();
 
 
         private:
