@@ -23,15 +23,13 @@ namespace json {
     class StringHandler{
         public:
             bool isDelim(char d);
+            bool checkSyntaxValidity(const string& key, const string& value);
             pair<string, string> divideKeyValue(const string& str, bool &isEndOfArray);
     };
-
-
 
     class Node {
         public:
             Node(const string& key, const string& value);
-            void print();
             void addSibling(Node *sibling);
             vector<Node*> getSiblings();
             bool containsOpeningBracket();
@@ -43,6 +41,7 @@ namespace json {
             string getKey();
             string getValue();
 
+            friend std::ostream& operator<<(std::ostream& os, const Node* node);
 
         private:
             string _key;

@@ -15,6 +15,41 @@ namespace json {
         }
     }
 
+    bool StringHandler::checkSyntaxValidity(const string& key, const string& value) {
+        int quotes = 0;
+        // check validity of the key
+        const char *c = &key[0];
+        if (*c != '\0' && *c != ']' && *c != '}' && !isDelim(*c)) {
+            while (*c != '\0') {
+                if (*c == '\"') {
+                    ++quotes;
+                }
+                ++c;
+            }
+            if (quotes != 2) {
+                return false;
+            }
+
+            quotes = 0;
+            c = &value[0];
+            // check validity of the value
+            if (*c != '\0' && !isDelim(*c)) {
+                while (*c != '\0') {
+                    if (*c == '\"') {
+                        ++quotes;
+                    }
+                    ++c;
+                }
+                if (quotes != 2) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        return true;
+    }
+
     pair<string, string> StringHandler::divideKeyValue(const string& str, bool &isEndOfArray) {
         string key, value;
         const char *c = &str[0];
@@ -100,8 +135,9 @@ namespace json {
 
     }
 
-    void Node::print() {
-        cout << "`" << _key << "`||`" << _value << "`" << endl;
+    std::ostream& operator<<(std::ostream& os, const Node* node) {
+        os << node->_key << "||" << node->_value;
+        return os;
     }
 
     void Node::addSibling(Node *sibling) {

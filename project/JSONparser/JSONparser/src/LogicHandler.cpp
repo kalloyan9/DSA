@@ -124,9 +124,15 @@ int LogicHandler::read(const string& fileName) {
                 _root = _recStack.top();
             }
 
+            // checkcheck and store the key and the value
             bool isEndOfArray = false;
             pair<string, string> mapped = _stringHandler.divideKeyValue(line, isEndOfArray);
-
+            cout << "extracting line: " << line << endl;
+            if (!_stringHandler.checkSyntaxValidity(mapped.first, mapped.second)) {
+                std::cerr << "Detected invalid syntax on line: " << line << endl;
+                std::cerr << "Aborting...\n";
+                return kFAIL;
+            }
             // add new node
             json::Node *node = new json::Node(mapped.first, mapped.second);
             // build tree
@@ -185,8 +191,7 @@ void LogicHandler::printTree(json::Node *root, size_t level) {
         return;
     }
 
-    cout << "level:" << level << " ";
-    root->print();
+    cout << "level:" << level << " " << root << endl;
     vector<json::Node*> siblings = root->getSiblings();
     for (size_t i = 0; i < siblings.size(); ++i) {
         printTree(siblings[i], level + 1);
@@ -223,8 +228,7 @@ void LogicHandler::printTree_BFS() {
         } else if (DELIM_DUMP == node && q.empty()) {
             break;
         } else {
-            cout << "level:" << level << "|";
-            node->print();
+            cout << "level:" << level << "|" << node<< endl;
             v = node->getSiblings();
             for (size_t i = 0; i < v.size(); ++i) {
                 q.push(v[i]);
