@@ -1,5 +1,6 @@
 #include "LogicHandler.hpp"
 using namespace console;
+using namespace functionResult;
 
 LogicHandler::LogicHandler() {
     _root = nullptr;
@@ -124,7 +125,7 @@ int LogicHandler::read(const string& fileName) {
             }
 
             bool isEndOfArray = false;
-            pair<string, string> mapped = json::divideKeyValue(line, isEndOfArray);
+            pair<string, string> mapped = _stringHandler.divideKeyValue(line, isEndOfArray);
 
             // add new node
             json::Node *node = new json::Node(mapped.first, mapped.second);

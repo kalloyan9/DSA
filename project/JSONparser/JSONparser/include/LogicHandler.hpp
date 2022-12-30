@@ -15,16 +15,18 @@ using std::fstream;
 using std::string;
 using std::stack;
 
-static constexpr int kSUCCESS = 0;
-static constexpr int kFAIL = 1;
+namespace functionResult {
+    static constexpr int kSUCCESS = 0;
+    static constexpr int kFAIL = 1;
+}
 
 namespace console {
-    static const string kREAD{"read"};
-    static const string kSEARCH_BY_KEY{"search_key"};
-    static const string kCHANGE_OBJECT{"change_object"};
-    static const string kCREATE_OBJECT{"create_object"};
-    static const string kSAVE{"save"};
-    static const string kEXIT{"exit"};
+    static const string kREAD = "read";
+    static const string kSEARCH_BY_KEY = "search_key";
+    static const string kCHANGE_OBJECT = "change_object";
+    static const string kCREATE_OBJECT = "create_object";
+    static const string kSAVE = "save";
+    static const string kEXIT = "exit";
 
     enum ConsoleInput {
         READ = 0,
@@ -58,9 +60,9 @@ class LogicHandler
         void printTree_BFS();
 
         // data members
-        string _command;
         console::ConsoleInput _consoleInput;
-        stack<char> _delimstack;
+        string _command;
+        json::StringHandler _stringHandler;
         json::Node *_root;
         stack<json::Node*> _recStack;
 };

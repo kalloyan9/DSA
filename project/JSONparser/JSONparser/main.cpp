@@ -7,7 +7,7 @@ static LogicHandler logicHandler;
 int main()
 {
     // run cyclic
-    while (kSUCCESS == logicHandler.runCyclic()) {
+    while (functionResult::kSUCCESS == logicHandler.runCyclic()) {
 
     }
 

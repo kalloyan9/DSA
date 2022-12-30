@@ -4,7 +4,9 @@
    offices: [
                {
                    name:Headquarters,
-                   address:Sofia
+                   address: {
+				grad:Sofia
+			    }
                }
             ],
    members:[
