@@ -2,9 +2,9 @@
    name:ACME Software Co.,
    members:[
                {   
-                   id : 0,
-                   name : John Smith,
-                   birthdate : 1980-01-01
+                   id:0,
+                   name:John Smith,
+                   birthdate:1980-01-01
                }
            ]
  }

@@ -8,7 +8,7 @@ namespace json {
     }
 
     void Node::print() {
-        cout << "key: " << _key << "  value: " << _value << "  siblings: " << _siblings.size() << endl;
+        cout << "`" << _key << "`||`" << _value << "`" << endl;
     }
 
     void Node::addSibling(Node *sibling) {
@@ -33,6 +33,23 @@ namespace json {
 
     string Node::getValue() {
         return _value;
+    }
+
+    bool Node::containsOpeningBracket() {
+        if (_key == "{" || _key == "["
+        ||  _value == "{" || _value == "[") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool Node::containsClosingBracket() {
+        if (_key == "}" || _key == "]") {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 } // namespace json

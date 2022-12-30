@@ -52,10 +52,10 @@ class LogicHandler
         // read from file and build json tree
         int read(const string& fileName);
         void deleteTree(json::Node *root);
-        void printTree(json::Node *root);
+        void printTree(json::Node *root, size_t level);
         void printTree();
         void deleteTree();
-        void printBFS();
+        void printTree_BFS();
 
         // data members
         string _command;

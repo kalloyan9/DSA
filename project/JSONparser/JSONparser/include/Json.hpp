@@ -8,7 +8,8 @@
 
 // todo: remove
 #include <iostream>
-using std::cout, std::endl;
+using std::cout;
+using std::endl;
 
 
 using std::vector;
@@ -108,6 +109,8 @@ namespace json {
             void print();
             void addSibling(Node *sibling);
             vector<Node*> getSiblings();
+            bool containsOpeningBracket();
+            bool containsClosingBracket();
 
             void setKey(const string& key);
             void setValue(const string& value);
