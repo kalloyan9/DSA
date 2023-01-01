@@ -103,15 +103,22 @@ int LogicHandler::runCyclic()
     case ConsoleInput::SEARCH_BY_KEY:
         cout << "Please input a key to search: " << endl << ">";
         cin >> searchKey;
-        if (nullptr == _root) {
+        if (nullptr == _root)
+        {
             cout << "No JSON object available.\n";
-        } else {
+        }
+        else
+        {
             values = findByKey(searchKey);
             cout << "All mapped values to key " << searchKey << " are:\n";
-            if (values.size() == 0) {
+            if (values.size() == 0)
+            {
                 cout << "nothing is found.\n";
-            } else {
-                for (auto i : values) {
+            }
+            else
+            {
+                for (auto i : values)
+                {
                     cout << i << endl;
                 }
             }
@@ -138,9 +145,12 @@ int LogicHandler::runCyclic()
     case ConsoleInput::SAVE:
         cout << "Please input a file name: " << endl << ">";
         cin >> fileName;
-        if (nullptr == _root) {
+        if (nullptr == _root)
+        {
             cout << "No JSON object available.\n";
-        } else {
+        }
+        else
+        {
             saveToFile(fileName);
             cout << "JSON object saved successfully to file " << fileName << endl;
         }
@@ -314,12 +324,14 @@ void LogicHandler::printTree_BFS()
     }
 }
 
-vector<string> LogicHandler::findByKey(const string& key) {
+vector<string> LogicHandler::findByKey(const string& key)
+{
     vector<string> values;
     stack<json::Node*> s;
 
     // check the key is valid
-    if (key == "{" || key == "[" || key == ",") {
+    if (key == "{" || key == "[" || key == ",")
+    {
         return values;
     }
 
@@ -327,16 +339,19 @@ vector<string> LogicHandler::findByKey(const string& key) {
     json::Node *current;
     vector<json::Node*> siblings;
 
-    while (!s.empty()) {
+    while (!s.empty())
+    {
         current = s.top();
         s.pop();
 
-        if (current->getKey() == key && !current->containsOpeningBracket()) {
+        if (current->getKey() == key && !current->containsOpeningBracket())
+        {
             values.push_back(current->getValue());
         }
 
         siblings = current->getSiblings();
-        for (size_t i = 0; i < siblings.size(); ++i) {
+        for (size_t i = 0; i < siblings.size(); ++i)
+        {
             s.push(siblings[i]);
         }
     }
@@ -345,18 +360,22 @@ vector<string> LogicHandler::findByKey(const string& key) {
 }
 
 // TODO:
-int LogicHandler::changeObject(const string& fullPath, const string& newValue) {
+int LogicHandler::changeObject(const string& fullPath, const string& newValue)
+{
     return 0;
 }
 
 // TODO:
-int LogicHandler::createObject(const string& fullPath, const string& value) {
+int LogicHandler::createObject(const string& fullPath, const string& value)
+{
     return 0;
 }
 
-int LogicHandler::saveToFile(const string& fileName) {
+int LogicHandler::saveToFile(const string& fileName)
+{
     std::ofstream file(fileName);
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         std::cerr << "error opening the file, aborting...\n";
         return kFAIL;
     }
@@ -368,7 +387,8 @@ int LogicHandler::saveToFile(const string& fileName) {
     return kSUCCESS;
 }
 
-void LogicHandler::convertToReadableFormat(json::Node *root, size_t level, std::ostream& os) {
+void LogicHandler::convertToReadableFormat(json::Node *root, size_t level, std::ostream& os)
+{
     if (nullptr == root)
     {
         os << endl;
@@ -377,10 +397,12 @@ void LogicHandler::convertToReadableFormat(json::Node *root, size_t level, std::
 
     size_t i = 0;
     string key = root->getKey();
-    if (root->containsClosingBracket()) {
+    if (root->containsClosingBracket())
+    {
         i = 1;
     }
-    while (i < level) {
+    while (i < level)
+    {
         os << '\t';
         ++i;
     }

@@ -19,29 +19,29 @@ using std::queue;
 
 namespace functionResult
 {
-    static constexpr int kSUCCESS = 0;
-    static constexpr int kFAIL = 1;
+static constexpr int kSUCCESS = 0;
+static constexpr int kFAIL = 1;
 } // functionResult
 
 namespace console
 {
-    static const string kREAD = "read";
-    static const string kSEARCH_BY_KEY = "search_key";
-    static const string kCHANGE_OBJECT = "change_object";
-    static const string kCREATE_OBJECT = "create_object";
-    static const string kSAVE = "save";
-    static const string kEXIT = "exit";
+static const string kREAD = "read";
+static const string kSEARCH_BY_KEY = "search_key";
+static const string kCHANGE_OBJECT = "change_object";
+static const string kCREATE_OBJECT = "create_object";
+static const string kSAVE = "save";
+static const string kEXIT = "exit";
 
-    enum ConsoleInput
-    {
-        READ = 0,
-        SEARCH_BY_KEY,
-        CHANGE_OBJECT,
-        CREATE_OBJECT,
-        SAVE,
-        EXIT,
-        UNKNOWN
-    };
+enum ConsoleInput
+{
+    READ = 0,
+    SEARCH_BY_KEY,
+    CHANGE_OBJECT,
+    CREATE_OBJECT,
+    SAVE,
+    EXIT,
+    UNKNOWN
+};
 } // console
 
 class LogicHandler
