@@ -56,13 +56,21 @@ public:
     int handleConsole();
 
 private:
+    // basic functionallity
     // read from file and build json tree
     int read(const string& fileName);
-    void deleteTree(json::Node *root);
-    void printTree(json::Node *root, size_t level);
-    void printTree();
+    vector<json::Node*> findByKey(const string& key);
+    int changeObject(const string& fullPath, const string& newValue);
+    int createObject(const string& fullPath, const string& value);
+    int saveToFile(const string& fileName);
+
+    // helper methods
     void deleteTree();
+    void deleteTree(json::Node *root);
+    void printTree();
+    void printTree(json::Node *root, size_t level);
     void printTree_BFS();
+    void convertToReadableFormat(json::Node *root, size_t level, std::ostream& os);
 
     // data members
     console::ConsoleInput _consoleInput;

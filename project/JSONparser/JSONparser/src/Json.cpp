@@ -126,7 +126,23 @@ namespace json {
             }
         }
 
-        return std::make_pair(key, value);
+
+        // remove everything after quotes
+        string finalKey;
+        size_t quotes = 0;
+        c = &key[0];
+        while(*c != '\0') {
+            if (*c == '\"') {
+                ++quotes;
+            }
+            finalKey.push_back(*c);
+            if (quotes == 2) {
+                break;
+            }
+            ++c;
+        }
+
+        return std::make_pair(finalKey, value);
     }
 
     Node::Node(const string& key, const string& value)
@@ -136,7 +152,12 @@ namespace json {
     }
 
     std::ostream& operator<<(std::ostream& os, const Node* node) {
-        os << node->_key << "||" << node->_value;
+        os << node->_key;
+        if (node->_value != "" && node->_value != ",")
+                os << ":";
+        if (node->_value != "")
+            os << node->_value;
+
         return os;
     }
 

@@ -18,13 +18,13 @@ void LogicHandler::printMan() const
 {
     cout << endl << endl;
     cout << "===================[man]===================\n";
-    cout << "type 'read' - to read a file\n";
-    cout << "type 'search_key' - to search by key\n";
-    cout << "type 'change_object' - to change object\n";
-    cout << "type 'create_object' - to create object\n";
-    cout << "type 'save' - to save object\n";
-    cout << "type 'exit' - to exit\n";
-    cout << "type 'man' - to see manual\n";
+    cout << "type 'read' - to read a file.\n";
+    cout << "type 'search_key' - to search by key.\n";
+    cout << "type 'change_object' - to change object.\n";
+    cout << "type 'create_object' - to create object.\n";
+    cout << "type 'save' - to save to a file.\n";
+    cout << "type 'exit' - to exit.\n";
+    cout << "type 'man' - to see manual.\n";
     cout << "===========================================\n";
     cout << endl;
 }
@@ -72,10 +72,12 @@ int LogicHandler::runCyclic()
     int consoleResult = handleConsole();
     int helperFuncResult = 0;
     string fileString{}, searchKey{}, fullPath{}, object{}, fileName{};
+    vector<json::Node*> forest;
 
     switch (consoleResult)
     {
     case ConsoleInput::EXIT:
+        deleteTree();
         return kFAIL;
         break;
 
@@ -101,6 +103,19 @@ int LogicHandler::runCyclic()
     case ConsoleInput::SEARCH_BY_KEY:
         cout << "Please input a key to search: " << endl << ">";
         cin >> searchKey;
+        if (nullptr == _root) {
+            cout << "No JSON object available.\n";
+        } else {
+            forest = findByKey(searchKey);
+            cout << "All mapped values to key " << searchKey << " are:\n";
+            if (forest.size() == 0) {
+                cout << "nothing is found.\n";
+            } else {
+                for (auto i : forest) {
+                    convertToReadableFormat(i, 0, cout);
+                }
+            }
+        }
         return kSUCCESS;
         break;
 
@@ -123,6 +138,12 @@ int LogicHandler::runCyclic()
     case ConsoleInput::SAVE:
         cout << "Please input a file name: " << endl << ">";
         cin >> fileName;
+        if (nullptr == _root) {
+            cout << "No JSON object available.\n";
+        } else {
+            saveToFile(fileName);
+            cout << "JSON object saved successfully to file " << fileName << endl;
+        }
         return kSUCCESS;
         break;
 
@@ -143,6 +164,7 @@ int LogicHandler::read(const string& fileName)
         // read line by line
         while (getline(myfile,line))
         {
+            // build JSON tree recursive
             if (!_recStack.empty())
             {
                 _root = _recStack.top();
@@ -151,7 +173,6 @@ int LogicHandler::read(const string& fileName)
             // check and store the key and the value
             bool isEndOfArray = false;
             pair<string, string> mapped = _stringHandler.divideKeyValue(line, isEndOfArray);
-            cout << "extracting line: " << line << endl;
             if (!_stringHandler.checkSyntaxValidity(mapped.first, mapped.second))
             {
                 std::cerr << "Detected invalid syntax on line: " << line << endl;
@@ -286,5 +307,84 @@ void LogicHandler::printTree_BFS()
                 q.push(v[i]);
             }
         }
+    }
+}
+
+vector<json::Node*> LogicHandler::findByKey(const string& key) {
+    vector<json::Node*> forest;
+    stack<json::Node*> s;
+
+    // check the key is valid
+    if (key == "{" || key == "[" || nullptr == _root) {
+        return forest;
+    }
+
+    s.push(_root);
+    json::Node *current;
+    vector<json::Node*> siblings;
+
+    while (!s.empty()) {
+        current = s.top();
+        s.pop();
+
+        if (current->getKey() == key) {
+            forest.push_back(current);
+        }
+
+        siblings = current->getSiblings();
+        for (size_t i = 0; i < siblings.size(); ++i) {
+            s.push(siblings[i]);
+        }
+    }
+
+    return forest;
+}
+
+// TODO:
+int LogicHandler::changeObject(const string& fullPath, const string& newValue) {
+    return 0;
+}
+
+// TODO:
+int LogicHandler::createObject(const string& fullPath, const string& value) {
+    return 0;
+}
+
+int LogicHandler::saveToFile(const string& fileName) {
+    std::ofstream file(fileName);
+    if (!file.is_open()) {
+        std::cerr << "error opening the file, aborting...\n";
+        return kFAIL;
+    }
+
+    convertToReadableFormat(_root, 0, file);
+
+    file.close();
+
+    return kSUCCESS;
+}
+
+void LogicHandler::convertToReadableFormat(json::Node *root, size_t level, std::ostream& os) {
+    if (nullptr == root)
+    {
+        os << endl;
+        return;
+    }
+
+    size_t i = 0;
+    string key = root->getKey();
+    if (root->containsClosingBracket()) {
+        i = 1;
+    }
+    while (i < level) {
+        os << '\t';
+        ++i;
+    }
+    os << root << endl;
+
+    vector<json::Node*> siblings = root->getSiblings();
+    for (size_t i = 0; i < siblings.size(); ++i)
+    {
+        convertToReadableFormat(siblings[i], level + 1, os);
     }
 }
