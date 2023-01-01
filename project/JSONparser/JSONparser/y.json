@@ -1,0 +1,22 @@
+{
+	"name":"Kaloyano",
+	"obj":{
+			"digits":[
+				[
+					{ 
+						"az":"ti"
+					},
+					1,
+					2,
+					3
+				],
+				"four",
+				6,
+				"5"
+			],
+			"strings":{
+				"name":"Levski shampion!"
+			},
+			"az":3
+		}
+}

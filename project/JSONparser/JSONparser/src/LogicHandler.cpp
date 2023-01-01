@@ -72,7 +72,7 @@ int LogicHandler::runCyclic()
     int consoleResult = handleConsole();
     int helperFuncResult = 0;
     string fileString{}, searchKey{}, fullPath{}, object{}, fileName{};
-    vector<json::Node*> forest;
+    vector<string> values;
 
     switch (consoleResult)
     {
@@ -106,13 +106,13 @@ int LogicHandler::runCyclic()
         if (nullptr == _root) {
             cout << "No JSON object available.\n";
         } else {
-            forest = findByKey(searchKey);
+            values = findByKey(searchKey);
             cout << "All mapped values to key " << searchKey << " are:\n";
-            if (forest.size() == 0) {
+            if (values.size() == 0) {
                 cout << "nothing is found.\n";
             } else {
-                for (auto i : forest) {
-                    convertToReadableFormat(i, 0, cout);
+                for (auto i : values) {
+                    cout << i << endl;
                 }
             }
         }
@@ -156,13 +156,14 @@ int LogicHandler::runCyclic()
 
 int LogicHandler::read(const string& fileName)
 {
-    string line;
+    size_t line = 1;
+    string str;
     std::ifstream myfile(fileName);
     if (myfile.is_open())
     {
         cout << "file " << fileName << " opened:\n";
         // read line by line
-        while (getline(myfile,line))
+        while (getline(myfile,str))
         {
             // build JSON tree recursive
             if (!_recStack.empty())
@@ -172,13 +173,14 @@ int LogicHandler::read(const string& fileName)
 
             // check and store the key and the value
             bool isEndOfArray = false;
-            pair<string, string> mapped = _stringHandler.divideKeyValue(line, isEndOfArray);
+            pair<string, string> mapped = _stringHandler.divideKeyValue(str, isEndOfArray);
             if (!_stringHandler.checkSyntaxValidity(mapped.first, mapped.second))
             {
-                std::cerr << "Detected invalid syntax on line: " << line << endl;
+                std::cerr << "Detected invalid syntax on line " << line << ", symbol: XXX" << mapped.first << "XXX" << mapped.second  << "XXX" << endl;
                 std::cerr << "Aborting...\n";
                 return kFAIL;
             }
+            cout << "keyXXX" << mapped.first << "XXXvalueXXX" << mapped.second << "XXX" << endl;
             // add new node
             json::Node *node = new json::Node(mapped.first, mapped.second);
             // build tree
@@ -202,6 +204,7 @@ int LogicHandler::read(const string& fileName)
             else if (node->containsOpeningBracket())
             {
                 // opening array or object
+                node->setIsArray(true);
                 _recStack.push(node);
             }
             else
@@ -209,6 +212,7 @@ int LogicHandler::read(const string& fileName)
                 // leaf
                 // do nothing
             }
+            ++line;
         }
         myfile.close();
         // clear stack
@@ -310,13 +314,13 @@ void LogicHandler::printTree_BFS()
     }
 }
 
-vector<json::Node*> LogicHandler::findByKey(const string& key) {
-    vector<json::Node*> forest;
+vector<string> LogicHandler::findByKey(const string& key) {
+    vector<string> values;
     stack<json::Node*> s;
 
     // check the key is valid
-    if (key == "{" || key == "[" || nullptr == _root) {
-        return forest;
+    if (key == "{" || key == "[" || key == ",") {
+        return values;
     }
 
     s.push(_root);
@@ -327,8 +331,8 @@ vector<json::Node*> LogicHandler::findByKey(const string& key) {
         current = s.top();
         s.pop();
 
-        if (current->getKey() == key) {
-            forest.push_back(current);
+        if (current->getKey() == key && !current->containsOpeningBracket()) {
+            values.push_back(current->getValue());
         }
 
         siblings = current->getSiblings();
@@ -337,7 +341,7 @@ vector<json::Node*> LogicHandler::findByKey(const string& key) {
         }
     }
 
-    return forest;
+    return values;
 }
 
 // TODO:

@@ -59,7 +59,7 @@ private:
     // basic functionallity
     // read from file and build json tree
     int read(const string& fileName);
-    vector<json::Node*> findByKey(const string& key);
+    vector<string> findByKey(const string& key);
     int changeObject(const string& fullPath, const string& newValue);
     int createObject(const string& fullPath, const string& value);
     int saveToFile(const string& fileName);

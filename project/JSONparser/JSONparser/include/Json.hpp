@@ -30,9 +30,11 @@ namespace json
 
         void setKey(const string& key);
         void setValue(const string& value);
+        void setIsArray(bool isArray);
 
         string getKey();
         string getValue();
+        bool getIsArray();
 
         friend std::ostream& operator<<(std::ostream& os, const Node* node);
 
@@ -40,6 +42,7 @@ namespace json
         string _key;
         string _value;
         bool _isArray;
+
         vector<Node*> _siblings;
     };
 } // namespace json

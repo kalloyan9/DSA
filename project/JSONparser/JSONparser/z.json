@@ -1,5 +1,4 @@
 {
-   "name":"ACME Software Co.",
    "type":"Software Development Company",
    "offices": [
                {
@@ -27,5 +26,11 @@
    "management":{
                    "directorId":"0",
                    "presidentId":"1"
-				}
+				},
+				
+	"name":[
+				"first",
+				"third"
+			],
+	"name":"ACME Software Co."
  } 
