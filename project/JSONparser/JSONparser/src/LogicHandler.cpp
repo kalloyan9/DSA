@@ -127,18 +127,20 @@ int LogicHandler::runCyclic()
         break;
 
     case ConsoleInput::CHANGE_OBJECT:
-        cout << "Please input a full path to the object: " << endl << ">";
+        cout << "Functionality still not implemented :/\n";
+        /*cout << "Please input a full path to the object: " << endl << ">";
         cin >> fullPath;
         cout << "Please input a string for the new object: " << endl << ">";
-        cin >> object;
+        cin >> object;*/
         return kSUCCESS;
         break;
 
     case ConsoleInput::CREATE_OBJECT:
-        cout << "Please input a full path to the object: " << endl << ">";
+        cout << "Functionality still not implemented :/\n";
+        /*cout << "Please input a full path to the object: " << endl << ">";
         cin >> fullPath;
         cout << "Please input a string for the new object: " << endl << ">";
-        cin >> object;
+        cin >> object;*/
         return kSUCCESS;
         break;
 
