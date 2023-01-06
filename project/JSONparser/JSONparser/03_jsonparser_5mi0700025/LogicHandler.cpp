@@ -166,70 +166,6 @@ int LogicHandler::runCyclic()
     }
 }
 
-int LogicHandler::createTree(json::Node*& root, std::ifstream& is, stack<json::Node*>& s, size_t& line) {
-    string str;
-    while (getline(is,str))
-    {
-        // build JSON tree recursive
-        if (!s.empty())
-        {
-            root = s.top();
-        }
-
-        // check and store the key and the value
-        bool isEndOfArray = false;
-        pair<string, string> mapped = _stringHandler.divideKeyValue(str, isEndOfArray);
-        if (!_stringHandler.checkSyntaxValidity(mapped.first, mapped.second))
-        {
-            std::cerr << "Detected invalid syntax on line " << line << ", symbol: " << mapped.first << " " << mapped.second << endl;
-            std::cerr << "Aborting...\n";
-            return kFAIL;
-        }
-        //cout << "keyXXX" << mapped.first << "XXXvalueXXX" << mapped.second << "XXX" << endl;
-        // add new node
-        json::Node *node = new json::Node(mapped.first, mapped.second);
-        // build tree
-        // initialization
-        if (nullptr == root)
-        {
-            root = node;
-            s.push(node);
-            continue;
-        }
-
-        root->addSibling(node);
-        if (node->containsClosingBracket())
-        {
-            // closing bracket
-            if (!s.empty())
-            {
-                s.pop();
-            }
-        }
-        else if (node->containsOpeningBracket())
-        {
-            // opening array or object
-            node->setIsArray(true);
-            s.push(node);
-        }
-        else
-        {
-            // leaf
-            // do nothing
-        }
-        ++line;
-    }
-
-    // clear stack
-    if (!s.empty())
-    {
-        std::cerr << "Invalid format.\n";
-        return kFAIL;
-    }
-
-    return kSUCCESS;
-}
-
 int LogicHandler::read(const string& fileName)
 {
     size_t line = 1;
@@ -238,10 +174,63 @@ int LogicHandler::read(const string& fileName)
     if (myfile.is_open())
     {
         cout << "file " << fileName << " opened:\n";
-        int result = createTree(_root, myfile, _recStack, line);
+        // read line by line
+        while (getline(myfile,str))
+        {
+            // build JSON tree recursive
+            if (!_recStack.empty())
+            {
+                _root = _recStack.top();
+            }
+
+            // check and store the key and the value
+            bool isEndOfArray = false;
+            pair<string, string> mapped = _stringHandler.divideKeyValue(str, isEndOfArray);
+            if (!_stringHandler.checkSyntaxValidity(mapped.first, mapped.second))
+            {
+                std::cerr << "Detected invalid syntax on line " << line << ", symbol: XXX" << mapped.first << "XXX" << mapped.second  << "XXX" << endl;
+                std::cerr << "Aborting...\n";
+                return kFAIL;
+            }
+            cout << "keyXXX" << mapped.first << "XXXvalueXXX" << mapped.second << "XXX" << endl;
+            // add new node
+            json::Node *node = new json::Node(mapped.first, mapped.second);
+            // build tree
+            // initialization
+            if (nullptr == _root)
+            {
+                _root = node;
+                _recStack.push(node);
+                continue;
+            }
+
+            _root->addSibling(node);
+            if (node->containsClosingBracket())
+            {
+                // closing bracket
+                if (!_recStack.empty())
+                {
+                    _recStack.pop();
+                }
+            }
+            else if (node->containsOpeningBracket())
+            {
+                // opening array or object
+                node->setIsArray(true);
+                _recStack.push(node);
+            }
+            else
+            {
+                // leaf
+                // do nothing
+            }
+            ++line;
+        }
         myfile.close();
-        if (kFAIL == result) {
-            deleteTree();
+        // clear stack
+        if (!_recStack.empty())
+        {
+            std::cerr << "Invalid format.\n";
             return kFAIL;
         }
     }
@@ -295,9 +284,6 @@ void LogicHandler::printTree()
 void LogicHandler::deleteTree()
 {
     deleteTree(_root);
-    while (!_recStack.empty()) {
-        _recStack.pop();
-    }
 }
 
 void LogicHandler::printTree_BFS()
