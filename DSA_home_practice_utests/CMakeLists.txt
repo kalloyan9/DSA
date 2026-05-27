@@ -15,6 +15,7 @@ set(SRCS
     src/MyStack/Implementation/MyStackArrayImpl/Unittests/MyStackArrayImplUTests.cpp
     src/MyStack/Implementation/MyStackLListImpl/MyStackLListImpl.cpp
     src/MyStack/Implementation/MyStackLListImpl/Unittests/MyStackLListImplUTests.cpp
+    src/MyAlgos/Unittests/MyAlgosUTests.cpp
 )
 
 add_executable(main ${SRCS})
@@ -28,6 +29,8 @@ target_include_directories(main PRIVATE
     src/MyDynamicArray/Unittests
     src/MyStack/Implementation/MyStackArrayImpl/Unittests
     src/MyStack/Implementation/MyStackLListImpl/Unittests
+    src/MyAlgos
+    src/MyAlgos/Unittests
 )
 
 target_compile_options(main PRIVATE -Wall -Wextra -g)
