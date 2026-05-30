@@ -1,4 +1,5 @@
 #include <iostream>
+#include <utility>
 #include "MyLinkedList.hpp"
 
 // Node implementation
@@ -22,98 +23,77 @@ namespace MyLinkedList
         this->size = 0;
     }
 
-    MyLinkedList::MyLinkedList(const MyLinkedList &other)
+    namespace
     {
-        this->pHead = nullptr;
-        this->size = 0;
-        Node *pCurr = other.pHead;
-        Node *pTail = nullptr;
-        while (nullptr != pCurr)
+        Node *cloneList(const Node *head)
         {
-            Node *pNew = new Node(pCurr->data);
-            if (nullptr == this->pHead)
+            if (head == nullptr)
             {
-                this->pHead = pNew;
+                return nullptr;
             }
-            else
+
+            Node *newHead = new Node(head->data);
+            Node *newTail = newHead;
+            const Node *current = head->pNext;
+            while (current != nullptr)
             {
-                pTail->pNext = pNew;
+                newTail->pNext = new Node(current->data);
+                newTail = newTail->pNext;
+                current = current->pNext;
             }
-            pTail = pNew;
-            pCurr = pCurr->pNext;
-            ++this->size;
+            return newHead;
+        }
+
+        void destroyList(Node *head)
+        {
+            while (head != nullptr)
+            {
+                Node *next = head->pNext;
+                delete head;
+                head = next;
+            }
         }
     }
 
-    MyLinkedList::MyLinkedList(MyLinkedList &&other) noexcept
+    MyLinkedList::MyLinkedList(const MyLinkedList &other)
+        : pHead(cloneList(other.pHead)), size(other.size)
     {
-        this->pHead = other.pHead;
-        this->size = other.size;
+    }
+
+    MyLinkedList::MyLinkedList(MyLinkedList &&other) noexcept
+        : pHead(other.pHead), size(other.size)
+    {
         other.pHead = nullptr;
         other.size = 0;
     }
 
     MyLinkedList &MyLinkedList::operator=(const MyLinkedList &other)
     {
-        if (this == &other)
-            return *this;
-
-        // clear current list
-        Node *pTemp = this->pHead;
-        Node *pNext = nullptr;
-        while (nullptr != pTemp)
+        if (this != &other)
         {
-            pNext = pTemp->pNext;
-            delete pTemp;
-            pTemp = pNext;
+            MyLinkedList temp(other);
+            swap(temp);
         }
-
-        this->pHead = nullptr;
-        this->size = 0;
-
-        // copy
-        Node *pCurr = other.pHead;
-        Node *pTail = nullptr;
-        while (nullptr != pCurr)
-        {
-            Node *pNew = new Node(pCurr->data);
-            if (nullptr == this->pHead)
-            {
-                this->pHead = pNew;
-            }
-            else
-            {
-                pTail->pNext = pNew;
-            }
-            pTail = pNew;
-            pCurr = pCurr->pNext;
-            ++this->size;
-        }
-
         return *this;
     }
 
     MyLinkedList &MyLinkedList::operator=(MyLinkedList &&other) noexcept
     {
-        if (this == &other)
-            return *this;
-
-        // clear current list
-        Node *pTemp = this->pHead;
-        Node *pNext = nullptr;
-        while (nullptr != pTemp)
+        if (this != &other)
         {
-            pNext = pTemp->pNext;
-            delete pTemp;
-            pTemp = pNext;
+            destroyList(pHead);
+            pHead = other.pHead;
+            size = other.size;
+            other.pHead = nullptr;
+            other.size = 0;
         }
-
-        this->pHead = other.pHead;
-        this->size = other.size;
-        other.pHead = nullptr;
-        other.size = 0;
-
         return *this;
+    }
+
+    void MyLinkedList::swap(MyLinkedList &other) noexcept
+    {
+        std::swap(pHead, other.pHead);
+        std::swap(size, other.size);
     }
 
     MyLinkedList::~MyLinkedList()

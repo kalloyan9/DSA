@@ -25,6 +25,7 @@ namespace MyDynamicArray
         void print();
         void resize(size_t _newCapacity);
         void clear();
+        void swap(MyDynamicArray &other) noexcept;
 
         // rule of five
         MyDynamicArray();

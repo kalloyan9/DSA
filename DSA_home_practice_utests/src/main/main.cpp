@@ -7,6 +7,10 @@
 
 #include "MyAlgos.hpp"
 #include "MyAlgosUTests.hpp"
+#include "MyGraphEdgeListUTests.hpp"
+#include "MyGraphAdjacencyListUTests.hpp"
+#include "MyGraphAdjacencyMatrixUTests.hpp"
+#include "MyGenericTreeUTests.hpp"
 
 int main()
 {
@@ -15,5 +19,9 @@ int main()
     MyStackArrayImpl::MyStackArrayImplUTests();
     MyStackLListImpl::MyStackLListImplUTests();
     MyAlgos::MyAlgosUTests();
+    MyGraph::MyGraphEdgeListUTests();
+    MyGraph::MyGraphAdjacencyListUTests();
+    MyGraph::MyGraphAdjacencyMatrixUTests();
+    MyTrees::MyGenericTreeUTests();
     return 0;
 }

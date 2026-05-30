@@ -33,6 +33,7 @@ namespace MyLinkedList
         MyLinkedList(MyLinkedList &&other) noexcept;
         MyLinkedList &operator=(const MyLinkedList &other);
         MyLinkedList &operator=(MyLinkedList &&other) noexcept;
+        void swap(MyLinkedList &other) noexcept;
         ~MyLinkedList();
     };
 } // namespace MyLinkedList

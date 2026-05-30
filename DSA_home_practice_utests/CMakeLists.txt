@@ -16,6 +16,10 @@ set(SRCS
     src/MyStack/Implementation/MyStackLListImpl/MyStackLListImpl.cpp
     src/MyStack/Implementation/MyStackLListImpl/Unittests/MyStackLListImplUTests.cpp
     src/MyAlgos/Unittests/MyAlgosUTests.cpp
+    src/MyGraph/Unittests/MyGraphEdgeListUTests.cpp
+    src/MyGraph/Unittests/MyGraphAdjacencyListUTests.cpp
+    src/MyGraph/Unittests/MyGraphAdjacencyMatrixUTests.cpp
+    src/MyTrees/MyGenericTree/Unittests/MyGenericTreeUTests.cpp
 )
 
 add_executable(main ${SRCS})
@@ -31,6 +35,10 @@ target_include_directories(main PRIVATE
     src/MyStack/Implementation/MyStackLListImpl/Unittests
     src/MyAlgos
     src/MyAlgos/Unittests
+    src/MyGraph/Implementation
+    src/MyGraph/Unittests
+    src/MyTrees/MyGenericTree/Implementation
+    src/MyTrees/MyGenericTree/Unittests
 )
 
 target_compile_options(main PRIVATE -Wall -Wextra -g)

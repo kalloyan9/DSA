@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include "MyDynamicArray.hpp"
 
 namespace MyDynamicArray
@@ -37,18 +38,20 @@ namespace MyDynamicArray
     }
 
     template <typename T>
+    void MyDynamicArray<T>::swap(MyDynamicArray &other) noexcept
+    {
+        std::swap(pData, other.pData);
+        std::swap(size, other.size);
+        std::swap(capacity, other.capacity);
+    }
+
+    template <typename T>
     MyDynamicArray<T> &MyDynamicArray<T>::operator=(const MyDynamicArray &other)
     {
         if (this != &other)
         {
-            delete[] pData;
-            pData = new T[other.capacity];
-            size = other.size;
-            capacity = other.capacity;
-            for (size_t i = 0; i < size; ++i)
-            {
-                pData[i] = other.pData[i];
-            }
+            MyDynamicArray temp(other);
+            swap(temp);
         }
         return *this;
     }
