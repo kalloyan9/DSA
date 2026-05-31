@@ -20,6 +20,7 @@ set(SRCS
     src/MyGraph/Unittests/MyGraphAdjacencyListUTests.cpp
     src/MyGraph/Unittests/MyGraphAdjacencyMatrixUTests.cpp
     src/MyTrees/MyGenericTree/Unittests/MyGenericTreeUTests.cpp
+    src/MyTrees/MyBST/Unittests/MyBSTUTests.cpp
 )
 
 add_executable(main ${SRCS})
@@ -39,6 +40,7 @@ target_include_directories(main PRIVATE
     src/MyGraph/Unittests
     src/MyTrees/MyGenericTree/Implementation
     src/MyTrees/MyGenericTree/Unittests
+    src/MyTrees/MyBST/Unittests
 )
 
 target_compile_options(main PRIVATE -Wall -Wextra -g)

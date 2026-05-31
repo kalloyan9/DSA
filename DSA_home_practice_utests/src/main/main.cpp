@@ -11,6 +11,7 @@
 #include "MyGraphAdjacencyListUTests.hpp"
 #include "MyGraphAdjacencyMatrixUTests.hpp"
 #include "MyGenericTreeUTests.hpp"
+#include "MyBSTUTests.hpp"
 
 int main()
 {
@@ -23,5 +24,6 @@ int main()
     MyGraph::MyGraphAdjacencyListUTests();
     MyGraph::MyGraphAdjacencyMatrixUTests();
     MyTrees::MyGenericTreeUTests();
+    MyTrees::MyBSTUTests();
     return 0;
 }
