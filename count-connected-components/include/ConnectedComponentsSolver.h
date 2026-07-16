@@ -22,7 +22,7 @@ public:
 private:
     // helper functions for traversal and state management
     void resetTraversalState() noexcept;
-    void bfs(std::size_t startRow, std::size_t startCol);
+    void bfs(std::size_t startRow, std::size_t startCol, std::size_t currComponentCount);
 
     // data members for matrix dimensions, cell values, and visited state
     std::size_t rows_;

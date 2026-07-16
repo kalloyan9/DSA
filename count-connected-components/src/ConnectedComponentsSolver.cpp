@@ -48,7 +48,7 @@ std::size_t ConnectedComponentsSolver::countComponents()
         for (std::size_t j = 0u; j < cols_; ++j) {
             if (0u != matrix_[i][j] && 0u == visited_[i][j]) {
                 ++componentCount;
-                bfs(i, j);
+                bfs(i, j, componentCount);
             }
         }
     }
@@ -56,7 +56,7 @@ std::size_t ConnectedComponentsSolver::countComponents()
     return componentCount;
 }
 
-void ConnectedComponentsSolver::bfs(std::size_t startRow, std::size_t startCol)
+void ConnectedComponentsSolver::bfs(std::size_t startRow, std::size_t startCol, std::size_t currComponentCount)
 {
     static constexpr int kRowOffsets[] = { -1, 1, 0, 0 };
     static constexpr int kColOffsets[] = { 0, 0, -1, 1 };
@@ -67,6 +67,7 @@ void ConnectedComponentsSolver::bfs(std::size_t startRow, std::size_t startCol)
 
     while (!q.empty()) {
         const Cell cell = q.front();
+        matrix_[cell.first][cell.second] = currComponentCount; // Mark the cell as part of a component
         q.pop();
 
         const unsigned long long currentRow = cell.first;
