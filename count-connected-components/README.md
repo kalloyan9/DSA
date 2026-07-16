@@ -1,5 +1,12 @@
 # Count Connected Components
 
+## Repo
+Git repo for tracking my changes and project lifecycle:
+git@github.com:kalloyan9/DSA.git
+
+url for web GUI github view:
+https://github.com/kalloyan9/DSA/tree/master/count-connected-components
+
 ## Overview
 
 This solution counts connected components in a binary matrix using breadth-first search (BFS). The code separates responsibilities across modular classes designed for clarity, maintainability, and extensibility.
