@@ -1,25 +1,26 @@
 #pragma once
 
-#include <iostream>
+#include <cstddef>
 #include <istream>
-#include <ostream>
+#include <stdexcept>
 #include <string>
 
-#include "ConnectedComponentsSolver.h"
+class ConnectedComponentsSolver;
+
+class InputError : public std::runtime_error {
+public:
+    using std::runtime_error::runtime_error;
+};
 
 class InputReader {
 public:
-    InputReader(std::istream& is = std::cin,
-                std::ostream& os = std::cout,
-                std::ostream& err = std::cerr);
+    explicit InputReader(std::istream& is);
 
-    void readDimensions(unsigned& rows, unsigned& cols) const;
+    void readDimensions(std::size_t& rows, std::size_t& cols) const;
     void readMatrix(ConnectedComponentsSolver& solver) const;
 
 private:
     void fail(const std::string& message) const;
 
     std::istream& is_;
-    std::ostream& os_;
-    std::ostream& err_;
 };

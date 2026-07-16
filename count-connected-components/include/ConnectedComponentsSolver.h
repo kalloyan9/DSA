@@ -1,27 +1,33 @@
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
+#include <utility>
 #include <vector>
 
 class ConnectedComponentsSolver {
 public:
-    using Matrix = std::vector<std::vector<bool>>;
-    using ComponentMatrix = std::vector<std::vector<unsigned>>;
+    // type definitions for matrix storage
+    using Matrix = std::vector<std::vector<std::uint8_t>>;
 
-    ConnectedComponentsSolver(unsigned rows, unsigned cols);
+    // constructor owns matrix dimensions and validation semantics
+    ConnectedComponentsSolver(std::size_t rows, std::size_t cols);
 
-    void setCell(unsigned row, unsigned col, bool value);
-    unsigned rows() const noexcept;
-    unsigned cols() const noexcept;
-    unsigned countComponents();
-    unsigned getComponentId(unsigned row, unsigned col) const noexcept;
-    const ComponentMatrix& getComponentMatrix() const noexcept;
+    // setters and getters
+    void setCell(std::size_t row, std::size_t col, bool value);
+    std::size_t rows() const noexcept;
+    std::size_t cols() const noexcept;
+    std::size_t countComponents();
 
 private:
-    bool bfs(unsigned startRow, unsigned startCol, unsigned componentId);
+    // helper functions for traversal and state management
+    void resetTraversalState() noexcept;
+    void bfs(std::size_t startRow, std::size_t startCol);
 
-    unsigned rows_;
-    unsigned cols_;
+    // data members for matrix dimensions, cell values, and visited state
+    std::size_t rows_;
+    std::size_t cols_;
     Matrix matrix_;
     Matrix visited_;
-    ComponentMatrix componentIds_;
+    using Cell = std::pair<std::size_t, std::size_t>; // type alias for cell coordinates
 };

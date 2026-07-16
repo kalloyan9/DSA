@@ -1,21 +1,34 @@
+#include <cstdlib>
+#include <exception>
 #include <iostream>
 
 #include "ConnectedComponentsSolver.h"
 #include "InputReader.h"
+#include "Logger.h"
 
 int main()
 {
-    unsigned rows = 0u;
-    unsigned cols = 0u;
+    ConsoleLogger logger(std::cout, std::cerr);
 
-    InputReader input(std::cin, std::cout, std::cerr);
-    input.readDimensions(rows, cols);
+    try {
+        std::size_t rows = 0u;
+        std::size_t cols = 0u;
 
-    ConnectedComponentsSolver solver(rows, cols);
-    input.readMatrix(solver);
+        InputReader input(std::cin);
 
-    const unsigned numberOfConnectedComponents = solver.countComponents();
-    std::cout << "Total number of connected components: " << numberOfConnectedComponents << std::endl;
+        logger.logInfo("Enter the number of rows (n) and columns (m):");
+        input.readDimensions(rows, cols);
 
-    return 0;
+        ConnectedComponentsSolver solver(rows, cols);
+
+        logger.logInfo("Enter the matrix values (0 or 1) row by row:");
+        input.readMatrix(solver);
+
+        const std::size_t numberOfConnectedComponents = solver.countComponents();
+        logger.logInfo(std::to_string(numberOfConnectedComponents) + " figures");
+        return EXIT_SUCCESS;
+    } catch (const std::exception& error) {
+        logger.logError(std::string("[ERROR]: ") + error.what());
+        return EXIT_FAILURE;
+    }
 }

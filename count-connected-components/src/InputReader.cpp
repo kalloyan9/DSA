@@ -1,36 +1,44 @@
+#include <limits>
+#include "ConnectedComponentsSolver.h"
 #include "InputReader.h"
 
-#include <cstdlib>
-
-InputReader::InputReader(std::istream& is, std::ostream& os, std::ostream& err)
-    : is_(is), os_(os), err_(err)
+InputReader::InputReader(std::istream& is)
+    : is_(is)
 {
 }
 
-void InputReader::readDimensions(unsigned& rows, unsigned& cols) const
+void InputReader::readDimensions(std::size_t& rows, std::size_t& cols) const
 {
-    os_ << "Enter the number of rows (n) and columns (m):" << std::endl;
-    if (!(is_ >> rows >> cols)) {
+    unsigned long long rawRows = 0;
+    unsigned long long rawCols = 0;
+
+    if (!(is_ >> rawRows >> rawCols)) {
         fail("Failed to read matrix dimensions.");
     }
 
-    if (rows == 0u || cols == 0u) {
+    if (0u == rawRows || 0u == rawCols) {
         fail("Invalid matrix dimensions. Rows and columns must be greater than zero.");
     }
+
+    const std::size_t maxSize = std::numeric_limits<std::size_t>::max();
+    if (rawRows > maxSize || rawCols > maxSize) {
+        fail("Matrix dimensions exceed supported maximum.");
+    }
+
+    rows = static_cast<std::size_t>(rawRows);
+    cols = static_cast<std::size_t>(rawCols);
 }
 
 void InputReader::readMatrix(ConnectedComponentsSolver& solver) const
 {
-    os_ << "Enter the matrix values (0 or 1) row by row:" << std::endl;
-
-    for (unsigned i = 0u; i < solver.rows(); ++i) {
-        for (unsigned j = 0u; j < solver.cols(); ++j) {
-            int value;
+    for (std::size_t i = 0u; i < solver.rows(); ++i) {
+        for (std::size_t j = 0u; j < solver.cols(); ++j) {
+            int value = 0;
             if (!(is_ >> value)) {
                 fail("Failed to read matrix value.");
             }
 
-            if (value != 0 && value != 1) {
+            if (0 != value && 1 != value) {
                 fail("Invalid matrix value. Please enter only 0 or 1.");
             }
 
@@ -41,6 +49,5 @@ void InputReader::readMatrix(ConnectedComponentsSolver& solver) const
 
 void InputReader::fail(const std::string& message) const
 {
-    err_ << "[ERROR]: " << message << std::endl;
-    std::exit(EXIT_FAILURE);
+    throw InputError(message);
 }

@@ -1,39 +1,54 @@
+#include <queue>
+#include <stdexcept>
+
 #include "ConnectedComponentsSolver.h"
 
-#include <queue>
 
-ConnectedComponentsSolver::ConnectedComponentsSolver(unsigned rows, unsigned cols)
-    : rows_(rows), cols_(cols), matrix_(rows, std::vector<bool>(cols, false)), visited_(rows, std::vector<bool>(cols, false))
+ConnectedComponentsSolver::ConnectedComponentsSolver(std::size_t rows, std::size_t cols)
+    : rows_(rows), cols_(cols), matrix_(rows, std::vector<std::uint8_t>(cols, 0u)), visited_(rows, std::vector<std::uint8_t>(cols, 0u))
 {
-}
-
-void ConnectedComponentsSolver::setCell(unsigned row, unsigned col, bool value)
-{
-    if (row < rows_ && col < cols_) {
-        matrix_[row][col] = value;
+    if (0u == rows || 0u == cols) {
+        throw std::invalid_argument("ConnectedComponentsSolver requires rows and cols greater than zero.");
     }
 }
 
-unsigned ConnectedComponentsSolver::rows() const noexcept
+void ConnectedComponentsSolver::setCell(std::size_t row, std::size_t col, bool value)
+{
+    if (row >= rows_ || col >= cols_) {
+        throw std::out_of_range("Cell coordinate is out of range.");
+    }
+    matrix_[row][col] = static_cast<std::uint8_t>(value ? 1u : 0u);
+}
+
+std::size_t ConnectedComponentsSolver::rows() const noexcept
 {
     return rows_;
 }
 
-unsigned ConnectedComponentsSolver::cols() const noexcept
+std::size_t ConnectedComponentsSolver::cols() const noexcept
 {
     return cols_;
 }
 
-unsigned ConnectedComponentsSolver::countComponents()
+void ConnectedComponentsSolver::resetTraversalState() noexcept
 {
-    unsigned componentCount = 0u;
+    for (std::size_t i = 0u; i < rows_; ++i) {
+        for (std::size_t j = 0u; j < cols_; ++j) {
+            visited_[i][j] = 0u;
+        }
+    }
+}
 
-    for (unsigned i = 0u; i < rows_; ++i) {
-        for (unsigned j = 0u; j < cols_; ++j) {
-            if (matrix_[i][j] && !visited_[i][j]) {
-                if (bfs(i, j)) {
-                    ++componentCount;
-                }
+std::size_t ConnectedComponentsSolver::countComponents()
+{
+    resetTraversalState();
+
+    std::size_t componentCount = 0u;
+    for (std::size_t i = 0u; i < rows_; ++i) {
+        for (std::size_t j = 0u; j < cols_; ++j) {
+            if (0u != matrix_[i][j] && 0u == visited_[i][j]) {
+                ++componentCount;
+                bfs(i, j);
             }
         }
     }
@@ -41,35 +56,56 @@ unsigned ConnectedComponentsSolver::countComponents()
     return componentCount;
 }
 
-bool ConnectedComponentsSolver::bfs(unsigned startRow, unsigned startCol)
+void ConnectedComponentsSolver::bfs(std::size_t startRow, std::size_t startCol)
 {
-    bool foundComponent = false;
-    std::queue<std::pair<unsigned, unsigned>> q;
-    q.push({startRow, startCol});
-    visited_[startRow][startCol] = true;
+    static constexpr int kRowOffsets[] = { -1, 1, 0, 0 };
+    static constexpr int kColOffsets[] = { 0, 0, -1, 1 };
+
+    std::queue<Cell> q;
+    q.emplace(startRow, startCol);
+    visited_[startRow][startCol] = 1u;
 
     while (!q.empty()) {
-        auto [row, col] = q.front();
+        const Cell cell = q.front();
         q.pop();
-        foundComponent = true;
 
-        if (row > 0 && matrix_[row - 1][col] && !visited_[row - 1][col]) {
-            visited_[row - 1][col] = true;
-            q.push({row - 1, col});
-        }
-        if (row + 1 < rows_ && matrix_[row + 1][col] && !visited_[row + 1][col]) {
-            visited_[row + 1][col] = true;
-            q.push({row + 1, col});
-        }
-        if (col > 0 && matrix_[row][col - 1] && !visited_[row][col - 1]) {
-            visited_[row][col - 1] = true;
-            q.push({row, col - 1});
-        }
-        if (col + 1 < cols_ && matrix_[row][col + 1] && !visited_[row][col + 1]) {
-            visited_[row][col + 1] = true;
-            q.push({row, col + 1});
+        const unsigned long long currentRow = cell.first;
+        const unsigned long long currentCol = cell.second;
+
+        for (std::size_t index = 0; index < 4; ++index) {
+            unsigned long long nextRow = currentRow;
+            unsigned long long nextCol = currentCol;
+
+            if (kRowOffsets[index] < 0) {
+                if (currentRow == 0ull) {
+                    continue;
+                }
+                nextRow = currentRow - 1ull;
+            } else if (kRowOffsets[index] > 0) {
+                nextRow = currentRow + 1ull;
+            }
+
+            if (kColOffsets[index] < 0) {
+                if (currentCol == 0ull) {
+                    continue;
+                }
+                nextCol = currentCol - 1ull;
+            } else if (kColOffsets[index] > 0) {
+                nextCol = currentCol + 1ull;
+            }
+
+            if (nextRow >= rows_ || nextCol >= cols_) {
+                continue;
+            }
+
+            const std::size_t nextRowIndex = static_cast<std::size_t>(nextRow);
+            const std::size_t nextColIndex = static_cast<std::size_t>(nextCol);
+
+            if (0u != matrix_[nextRowIndex][nextColIndex] &&
+                0u == visited_[nextRowIndex][nextColIndex]) {
+                visited_[nextRowIndex][nextColIndex] = 1u;
+                q.emplace(nextRowIndex, nextColIndex);
+            }
         }
     }
-
-    return foundComponent;
 }
