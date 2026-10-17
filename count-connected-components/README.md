@@ -1,223 +1,165 @@
 # Count Connected Components
 
-## Repo
-Git repo for tracking my changes and project lifecycle:
-git@github.com:kalloyan9/DSA.git
+A simple C++ project that counts connected components in a binary matrix using either BFS or a line-by-line component counter.
 
-url for web GUI github view:
-https://github.com/kalloyan9/DSA/tree/master/count-connected-components
+## Project overview
 
-## Overview
+This project reads a matrix from standard input, validates the values, and counts the number of connected groups of `1` cells.
 
-This solution counts connected components in a binary matrix using breadth-first search (BFS). The code separates responsibilities across modular classes designed for clarity, maintainability, and extensibility.
+- `InputReader` reads dimensions and matrix rows and validates input values.
+- `Matrix` stores the matrix and decides between two strategies:
+  - BFS for smaller matrices
+  - a linear scan for larger matrices
+- `main.cpp` runs the program and prints the result.
 
-- `ConnectedComponentsSolver`: Core BFS algorithm and component counting
-- `InputReader`: Validated input parsing and dimension checking
-- `ILogger` / `ConsoleLogger`: Abstracted logging for testable I/O
-- Thread-safe and exception-safe implementation with full RAII ownership
+## Current implementation
+
+The code currently uses:
+
+- `Matrix::solveBFS()` for small-to-medium matrices
+- `Matrix::solveLine()` for larger matrices
+- `std::queue` for BFS traversal
+- `std::vector` for rows and visited state
+- RAII-managed STL containers, so there are no manual `new`/`delete` calls and no explicit heap ownership to manage
 
 ## Algorithm
 
-- Uses breadth-first search (BFS)
-- Visits each `1` cell exactly once
-- Marks visited cells to prevent duplicate traversal
-- Orthogonal neighbors only (up, down, left, right)
-- No diagonal adjacency
+The matrix is treated as a grid of cells where neighbors are connected only in the 4 orthogonal directions:
 
-## Complexity
+- up
+- down
+- left
+- right
 
-**Time:** O(n × m)  
-**Space:** O(n × m)
+Diagonal cells are not connected.
 
-Where `n` = rows, `m` = columns. Storage uses compact `uint8_t` for both matrix and visited state.
+The BFS strategy visits every reachable `1` cell exactly once, while the line-based strategy detects a new component when a `1` cell is the first in its row or is connected to a zero in the previous row.
 
-## System & Environment
+## Time and space complexity
 
-### Development Environment (Tested On)
+For a matrix with `R` rows and `C` columns:
 
-| Component | Version | Details |
-|-----------|---------|---------|
-| **OS** | Linux Mint 22.3 | Based on Ubuntu 24.04 LTS |
-| **Architecture** | x86_64 | 64-bit Intel/AMD processors |
-| **Compiler** | g++ 13.3.0 | Ubuntu 13.3.0-6ubuntu2~24.04.1 |
-| **C++ Standard** | C++17 | `-std=c++17` flag |
-| **Build System** | GNU Make 4.3 | Incremental build automation |
-| **Static Analyzer** | cppcheck 2.13.0 | Code quality & safety checks |
-| **Compilation Flags** | `-Wall -Wextra -std=c++17 -O2` | Strict warnings + optimization |
+- BFS: O(R * C) time, O(R * C) extra space
+  - `_matrix` stores the full matrix
+  - `_visited` stores one boolean per cell
+- Line-based scan: O(R * C) time, O(C) extra space
+  - only two row buffers are kept at a time: `_prev_line` and `_curr_line`
+  - each row is read once, processed, then moved into the previous-row buffer
 
-### Kernel & System Info
-- **Kernel:** Linux 6.8.0-31-generic (or compatible)
-- **Glibc:** 2.39 (Ubuntu 24.04 standard)
+This means the streaming scan is memory-efficient because it does not store the entire matrix in memory while processing it.
 
-## Build & Run
+## Environment and toolchain
 
-### Prerequisites
+This project was developed and tested on a Windows machine using VS Code and MinGW GCC.
 
-- GCC/G++ 9+ or Clang 10+ with C++17 support
-- GNU Make 4.0+
-- Standard C++ libraries (libstdc++ or libc++)
+### Verified environment
 
-**Recommended:** GCC 11+ or Clang 12+ for best performance and diagnostics
+| Component | Details |
+|-----------|---------|
+| OS | Windows 11 |
+| Editor | Visual Studio Code |
+| Compiler | MinGW-w64 g++ |
+| C++ standard | C++17 |
+| Build tools | GNU Make and direct g++ commands |
+| Terminal | PowerShell / VS Code terminal |
 
-### Build the main program
+### Example compiler command
 
-```bash
+```powershell
+C:\msys64\mingw64\bin\g++.exe -Wall -Wextra -std=c++17 -ggdb -Iinclude src\InputReader.cpp src\Matrix.cpp src\main.cpp -o bin\main
+```
+
+## Build and run
+
+### From the project folder
+
+```powershell
 make
 ```
 
-This produces `bin/main`.
+This produces the executable in `bin/main`.
 
-### Run the main program
+### Run the program
 
-```bash
+```powershell
 ./bin/main
 ```
 
-**Verified execution on:**
-- Linux Mint 22.3 (x86_64)
-- Ubuntu 24.04 LTS (x86_64)
-- Compiler: g++ 13.3.0
+### Input format
 
-Provide matrix dimensions (rows and columns) on the first line, then matrix values row by row (0 or 1 only).
+The first line contains the matrix dimensions:
 
-Example input:
+```text
+rows cols
 ```
+
+Then each of the next `rows` lines contains `cols` values, each either `0` or `1`.
+
+Example:
+
+```text
 3 3
 1 1 1
 0 0 0
 1 1 1
 ```
 
-Output: `2 figures` (two separate components)
+Expected output:
 
-## Unit Tests
-
-Build and run all unit tests:
-
-```bash
-make run-tests
+```text
+2
 ```
 
-### Individual test executables
+This means there are two disconnected components of `1` values.
 
-- `./bin/solver_test` — ConnectedComponentsSolver unit tests (25 test cases)
-- `./bin/inputreader_test` — InputReader validation tests (5 test cases)
-- `./bin/logger_test` — ConsoleLogger unit tests
-- `./bin/test` — Combined test suite
+## Notes on correctness and safety
 
-### Test Coverage
+### No manual memory leaks
 
-**ConnectedComponentsSolver Tests:**
-- Empty matrix (all zeros)
-- Single cell and small matrices (1×1, 2×2)
-- Adjacent cells (horizontal and vertical)
-- Non-adjacent cells (same row/column)
-- Diagonal separation (no adjacency)
-- Complex patterns (L-shaped, T-shaped, plus-shaped, spirals)
-- State repeatability (countComponents() can be called multiple times)
-- Bounds validation (out-of-range rejection)
+The project does not use raw `new`/`delete` or manual memory allocation. All data is stored in STL containers such as `std::vector` and `std::queue`, which clean up automatically.
 
-**InputReader Tests:**
-- Valid dimension parsing
-- Zero dimension rejection
-- Non-numeric input rejection
-- Overflow detection (values > size_t max)
-- Valid matrix value input
-- Invalid matrix value rejection
+### No infinite loops
 
-**Result:** ✅ **All 30+ tests passed**
+All loops are bounded by matrix dimensions or by the size of a queue:
 
-## OOP Principles & Design
+- the BFS queue eventually empties because each visited cell is marked once
+- the line-based scan iterates over each row and each column exactly once
+- the input reader validates each matrix value before storing it
 
-### Encapsulation
-- Private data members (`rows_`, `cols_`, `matrix_`, `visited_`)
-- Public interfaces for state queries and mutations
-- Bounds checking on all cell access
+### Logic checks
 
-### Abstraction
-- `ILogger` interface decouples logging implementation
-- `InputReader` hides parsing complexity and validation
-- `ConnectedComponentsSolver` exposes only essential BFS interface
+The code validates:
 
-### Single Responsibility
-- `ConnectedComponentsSolver` handles only component counting
-- `InputReader` handles only input parsing and validation
-- `ConsoleLogger` handles only formatted output
+- positive row and column counts
+- input stream availability
+- matrix values are only `0` or `1`
+- BFS bounds before reading neighbors
+- empty or invalid matrix cases
 
-### Exception Safety
-- Constructor throws `std::invalid_argument` on zero dimensions
-- `setCell()` throws `std::out_of_range` on bounds violation
-- `InputReader` throws `InputError` on invalid input or parse failure
-- All exceptions include descriptive messages
+## Project files
 
-## Error Handling
+- `include/Globals.hpp` — shared types and enums
+- `include/InputReader.hpp` — input validation interface
+- `include/Matrix.hpp` — matrix logic and class declaration
+- `src/InputReader.cpp` — input parser implementation
+- `src/Matrix.cpp` — BFS and line-based counting implementation
+- `src/main.cpp` — program entry point
+- `Makefile` — build automation
+- `.vscode/tasks.json` — VS Code build tasks for Windows/MSYS2
 
-- **Input validation:** Dimensions must be > 0 and ≤ size_t max
-- **Type safety:** Matrix values validated as 0 or 1 only
-- **Bounds checking:** Cell access bounds-checked at assignment
-- **Stream safety:** Input stream failures detected and reported
-- **Graceful degradation:** Clear error messages for all failure cases
+## Troubleshooting
 
-## Static Code Analysis
+If VS Code builds the active file instead of the whole project, make sure the task compiles all source files together with the include directory. The safe project-level command is:
 
-### Build Configuration
-
-- **Compiler:** g++ 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1)
-- **Compilation Flags:** `-Wall -Wextra -std=c++17 -O2`
-- **C++ Standard:** C++17 (ISO/IEC 14882:2017)
-- **Optimization Level:** O2 (balanced speed/size)
-
-### cppcheck Analysis (v2.13.0)
-
-```
-Static Analyzer:   cppcheck 2.13.0
-Active Checkers:   161/592
-Warnings:          0
-Errors:            0
-Analysis Status:   ✅ PASS
+```powershell
+g++.exe -Wall -Wextra -std=c++17 -ggdb -Iinclude src\InputReader.cpp src\Matrix.cpp src\main.cpp -o bin\main
 ```
 
-### Code Quality Verification
+This matches the project organization and prevents missing-header and undefined-reference errors.
 
-| Criterion | Status | Details |
-|-----------|--------|---------|
-| Memory Safety | ✅ PASS | No leaks; RAII-managed STL containers |
-| No Infinite Loops | ✅ PASS | BFS uses queue + visited tracking |
-| OOP Practices | ✅ PASS | Encapsulation, single responsibility, clear interfaces |
-| Edge Cases | ✅ PASS | Empty/single-cell/large matrices handled |
-| Bounds Checking | ✅ PASS | Input validation + array access protection |
-| Exception Safety | ✅ PASS | Strong guarantee on all operations |
-| Const Correctness | ✅ PASS | Read-only methods marked const |
-| Resource Ownership | ✅ PASS | Clear ownership, no shared pointers needed |
+## Summary
 
-## Tools & Credits
-
-### Compiler & Build Toolchain
-- **G++ 13.3.0** (Ubuntu 13.3.0-6ubuntu2~24.04.1) — C++17 compilation with strict diagnostics
-- **GNU Make 4.3** (built for x86_64-pc-linux-gnu) — Task automation and incremental builds
-- **Linker:** ld (GNU binutils) — ELF binary linking for Linux x86_64
-
-### Testing & Analysis
-- **GCC/Clang** — Compilation with `-Wall -Wextra` for maximum diagnostics coverage
-- **cppcheck 2.13.0** — Static analysis engine with 161 active checkers for code quality and safety verification
-- **Custom Unit Test Framework** — Assert-based testing with stdout logging (31+ test cases)
-
-### C++ Standard Libraries Used
-- `<queue>` — BFS queue data structure
-- `<vector>` — Dynamic 2D matrix storage
-- `<stdexcept>` — Exception types for error handling
-- `<limits>` — std::numeric_limits for overflow detection
-- `<iostream>` — Standard I/O for CLI
-- `<sstream>` — String streams for input parsing
-- `<cassert>` — Test assertions
-- `<cstddef>` — std::size_t type definitions
-- `<cstdint>` — Fixed-width integer types (uint8_t)
-- `<iosfwd>` — Forward declarations for ostream/istream
-
-## Platform Compatibility
-
-### Tested & Verified On
-- ✅ Linux Mint 22.3 (x86_64) with g++ 13.3.0
+This project is a compact C++ solution for counting connected components in a binary matrix. It is built and tested in a Windows + VS Code + MinGW environment and relies on standard C++17 containers and safe, bounded traversal logic.
 - ✅ Ubuntu 24.04 LTS (x86_64)
 - ✅ Kernel 6.8.0-31-generic or compatible
 - ✅ Glibc 2.39 (Ubuntu 24.04 standard)

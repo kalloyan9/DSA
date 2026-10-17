@@ -136,22 +136,28 @@ std::size_t Matrix::solveBFS()
 std::size_t Matrix::solveLine()
 {
     std::size_t connectedComponentsCount = 0;
+    _prev_line.assign(_cols, 0);
+
     for (std::size_t i = 0; i < _rows; ++i)
     {
-        _curr_line.emplace_back(_reader->readLine(_cols));
+        _curr_line = std::move(_reader->readLine(_cols));
+
         for (std::size_t j = 0; j < _curr_line.size(); ++j)
         {
-            // if not null
-            if (_curr_line[j] != 0)
-            {
-                // if same row prev col is valid and equals null or if prev row same col is valid and equals null
-                if ((coords_validation({i, j - 1}) && 0 == _curr_line[j - 1]) ||
-                    (coords_validation({i - 1, j}) && 0 == _prev_line[j]))
+            if (0 != _curr_line[j])
+            {                
+                // starting a new component in case its the first element, previous left is zero or previous up is zero 
+                const bool newComponent =
+                (j == 0 || 0 == _curr_line[j - 1]) ||
+                (i > 0 && 0 == _prev_line[j]);
+
+                if (newComponent)
                 {
                     ++connectedComponentsCount;
                 }
             }
         }
+
         _prev_line = std::move(_curr_line);
     }
 
