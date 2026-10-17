@@ -1,22 +1,25 @@
 #include "Matrix.hpp"
 
+#include <iostream>
+#include <queue>
+#include <vector>
+
 Matrix::Matrix(std::size_t rows,
                std::size_t cols,
-               std::size_t rowThreshold = 1'000'000,
-               std::size_t colThreshold = 1'000'000)
-               const InputReader *reader,
-    :
-    _rows(rows),
-    _cols(cols),
-    _rowThreshold(rowThreshold),
-    _colThreshold(colThreshold),
-    _reader(reader),
-    _algo(globalTypes::UNDEF),
-    _matrix(),
-    _visited(),
-    _line(),
-    _bfsQueue(),
-    _coordsRemembered()
+               std::size_t rowThreshold,
+               std::size_t colThreshold,
+               InputReader *reader)
+    : _rows(rows),
+      _cols(cols),
+      _rowThreshold(rowThreshold),
+      _colThreshold(colThreshold),
+      _reader(reader),
+      _algo(globalTypes::UNDEF),
+      _matrix(),
+      _bfsQueue(),
+      _visited(),
+      _curr_line(),
+      _prev_line()
 {
 }
 
@@ -28,8 +31,13 @@ void Matrix::setDimensions(const std::size_t rows, const std::size_t cols)
 
 std::size_t Matrix::solve()
 {
+    // validate input
+    if (!(_rows > 0 && _cols > 0))
+    {
+        return 0;
+    }
+
     _algo = decideAlgo();
-    std::cout << "[LOG] Deciding algorithm..." << _algo << std::endl;
 
     switch (_algo)
     {
@@ -40,34 +48,73 @@ std::size_t Matrix::solve()
             return solveLine();
 
         default:
+            // should never enter here
             throw std::logic_error("Unknown algorithm.");
     }
 }
 
 globalTypes::Algo Matrix::decideAlgo()
 {
-    return (_rows <= _rowThreshold && _cols <= _colThreshold) ? 
-            globalTypes::BFS :
-            globalTypes::LINE;
+    return (_rows <= _rowThreshold && _cols <= _colThreshold)
+               ? globalTypes::BFS
+               : globalTypes::LINE;
 }
 
-bool Matrix::insideMatrix(globalTypes::CoordinatesType coords)
+bool Matrix::insideMatrix(const globalTypes::CoordinatesType& coords) const
 {
-    return ((coords.first >= 0ull && coords.second >= 0ull) &&
-            (coords.first < _rows && coords.second < _cols));
+    return (coords.row < _rows && coords.col < _cols);
+}
+
+bool Matrix::isVisited(std::size_t row, std::size_t col) const
+{
+    return (row < _visited.size() && col < _visited[row].size() && _visited[row][col]);
+}
+
+void Matrix::bfs(std::size_t row, std::size_t col)
+{
+    std::queue<globalTypes::CoordinatesType> queue;
+    queue.push(globalTypes::CoordinatesType(row, col));
+    _visited[row][col] = true;
+
+    while (!queue.empty())
+    {
+        const auto current = queue.front();
+        queue.pop();
+
+        const std::vector<globalTypes::CoordinatesType> neighbors = {
+            globalTypes::CoordinatesType(current.row - 1, current.col),
+            globalTypes::CoordinatesType(current.row + 1, current.col),
+            globalTypes::CoordinatesType(current.row, current.col - 1),
+            globalTypes::CoordinatesType(current.row, current.col + 1)
+        };
+
+        for (const auto& neighbor : neighbors)
+        {
+            if (!insideMatrix(neighbor))
+                continue;
+
+            if (_matrix[neighbor.row][neighbor.col] == 0)
+                continue;
+
+            if (_visited[neighbor.row][neighbor.col])
+                continue;
+
+            _visited[neighbor.row][neighbor.col] = true;
+            queue.push(neighbor);
+        }
+    }
 }
 
 std::size_t Matrix::solveBFS()
 {
-    // read the matrix
+    _matrix.clear();
     _matrix.reserve(_rows);
     for (std::size_t i = 0; i < _rows; ++i)
     {
         _matrix.emplace_back(_reader->readLine(_cols));
     }
 
-    // initialize the visited matrix
-    _visited.resize(_rows, std::vector<bool>(_cols, false));
+    _visited.assign(_rows, std::vector<bool>(_cols, false));
 
     std::size_t connectedComponentsCount = 0;
 
@@ -75,39 +122,10 @@ std::size_t Matrix::solveBFS()
     {
         for (std::size_t col = 0; col < _cols; ++col)
         {
-            if (0 != _matrix[row][col] && false == isVisited(row, col))
+            if (_matrix[row][col] != 0 && !isVisited(row, col))
             {
                 ++connectedComponentsCount;
-
-                _bfsQeue.push(globalTypes::Coordinates(row, col));
-                _visited[row][col] = true;
-                while (!_bfsQueue.empty())
-                {
-                    globalTypes::Coordinates current = _bfsQueue.front();
-                    _bfsQueue.pop();
-
-                    std::size_t currentRow = current.row;
-                    std::size_t currentCol = current.col;
-
-                    // check all 4 neighbors
-                    const std::vector<globalTypes::Coordinates> neighbors = {
-                        {currentRow - 1, currentCol}, // up
-                        {currentRow + 1, currentCol}, // down
-                        {currentRow, currentCol - 1}, // left
-                        {currentRow, currentCol + 1}  // right
-                    };
-
-                    for (const auto& neighbor : neighbors)
-                    {
-                        if (insideMatrix(neighbor) &&
-                            false == _visited[neighbor.row][neighbor.col] &&
-                            0 != _matrix[neighbor.row][neighbor.col])
-                        {
-                            _bfsQueue.push(neighbor);
-                            _visited[neighbor.row][neighbor.col] = true;
-                        }
-                    }
-                }
+                bfs(row, col);
             }
         }
     }
@@ -118,42 +136,23 @@ std::size_t Matrix::solveBFS()
 std::size_t Matrix::solveLine()
 {
     std::size_t connectedComponentsCount = 0;
-
-    for (size_t i = 0; i < _rows; ++i)
+    for (std::size_t i = 0; i < _rows; ++i)
     {
-        _line = _reader->readLine(_cols);
-        for (size_t j = 0; j < _cols; ++j)
+        _curr_line.emplace_back(_reader->readLine(_cols));
+        for (std::size_t j = 0; j < _curr_line.size(); ++j)
         {
-            static globalTypes::CoordinatesType current = {i, j};
-            static globalTypes::CoordinatesType previousRow = {i - 1, j};
-            static globalTypes::CoordinatesType previousCol = {i, j - 1};
-
-            // validity check
-            if (false == insideMatrix(current))
-                throw std::logic_error("Current coordinates are out of bounds.");
-            
-            // if element is not null, add it to the set
-            if (0 != _line[j])
+            // if not null
+            if (_curr_line[j] != 0)
             {
-                if (!isElementInSet(current))
+                // if same row prev col is valid and equals null or if prev row same col is valid and equals null
+                if ((coords_validation({i, j - 1}) && 0 == _curr_line[j - 1]) ||
+                    (coords_validation({i - 1, j}) && 0 == _prev_line[j]))
                 {
                     ++connectedComponentsCount;
-                    _coordsRemembered.insert(current);
-                }
-            }
-            else
-            {
-                // figure ended, remove from the set
-                if (insideMatrix(previousRow))
-                {
-                    removeFromSet(previousRow);
-                }
-                if (insideMatrix(previousCol))
-                {
-                    removeFromSet(previousCol);
                 }
             }
         }
+        _prev_line = std::move(_curr_line);
     }
 
     return connectedComponentsCount;

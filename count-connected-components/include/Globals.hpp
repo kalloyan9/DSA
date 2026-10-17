@@ -29,6 +29,8 @@ namespace globalTypes
         }
     };
 
+    using CoordinatesType = Coordinates;
+
     inline std::ostream& operator<<(std::ostream& os,
                                     const Coordinates& coords)
     {

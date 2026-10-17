@@ -9,14 +9,13 @@ int main()
     {
         InputReader inputReader(std::cin);
 
-        globalTypes::Coordinates dim =
-            inputReader.readDimensions();
+        globalTypes::Coordinates dim = inputReader.readDimensions();
 
         Matrix matrix(dim.row,
                       dim.col,
-                      inputReader,
                       5,
-                      5);
+                      5,
+                      &inputReader);
 
         std::cout << matrix.solve() << std::endl;
     }
