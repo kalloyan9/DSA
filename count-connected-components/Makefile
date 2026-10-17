@@ -1,72 +1,23 @@
-CXX      := g++
-CXXFLAGS := -Wall -Wextra -std=c++17 -O2
+CXX		  := g++
+CXX_FLAGS := -Wall -Wextra -std=c++17 -ggdb
 
-BIN      := bin
-SRC      := src
-INCLUDE  := include
+BIN		:= bin
+SRC		:= src
+INCLUDE	:= include
+LIB		:= lib
 
-CPPFLAGS := -I$(INCLUDE)
+LIBRARIES	:=
+EXECUTABLE	:= main
 
-all: $(BIN)/main
 
-run: all
-	./$(BIN)/main
+all: $(BIN)/$(EXECUTABLE)
 
-test: $(BIN)/test $(BIN)/solver_test $(BIN)/inputreader_test $(BIN)/logger_test
+run: clean all
+	clear
+	./$(BIN)/$(EXECUTABLE)
 
-run-tests: test
-	./$(BIN)/solver_test
-	./$(BIN)/inputreader_test
-	./$(BIN)/logger_test
-	./$(BIN)/test
-
-$(BIN)/main: | $(BIN)
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) \
-		$(SRC)/main.cpp \
-		$(SRC)/ConnectedComponentsSolver.cpp \
-		$(SRC)/InputReader.cpp \
-		$(SRC)/Logger.cpp \
-		-o $@
-
-$(BIN)/solver_test: | $(BIN)
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) \
-		$(SRC)/ConnectedComponentsSolver.cpp \
-		$(SRC)/InputReader.cpp \
-		$(SRC)/Logger.cpp \
-		$(SRC)/ConnectedComponentsSolver_UTests.cpp \
-		$(SRC)/SolverTestMain.cpp \
-		-o $@
-
-$(BIN)/inputreader_test: | $(BIN)
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) \
-		$(SRC)/ConnectedComponentsSolver.cpp \
-		$(SRC)/InputReader.cpp \
-		$(SRC)/InputReader_UTests.cpp \
-		$(SRC)/InputReaderTestMain.cpp \
-		-o $@
-
-$(BIN)/logger_test: | $(BIN)
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) \
-		$(SRC)/Logger.cpp \
-		$(SRC)/Logger_UTests.cpp \
-		$(SRC)/LoggerTestMain.cpp \
-		-o $@
-
-$(BIN)/test: | $(BIN)
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) \
-		$(SRC)/ConnectedComponentsSolver.cpp \
-		$(SRC)/InputReader.cpp \
-		$(SRC)/Logger.cpp \
-		$(SRC)/ConnectedComponentsSolver_UTests.cpp \
-		$(SRC)/InputReader_UTests.cpp \
-		$(SRC)/Logger_UTests.cpp \
-		$(SRC)/AllUnitTests.cpp \
-		-o $@
-
-$(BIN):
-	mkdir -p $(BIN)
+$(BIN)/$(EXECUTABLE): $(SRC)/*.cpp
+	$(CXX) $(CXX_FLAGS) -I$(INCLUDE) -L$(LIB) $^ -o $@ $(LIBRARIES)
 
 clean:
-	rm -rf $(BIN)
-
-.PHONY: all run test run-tests clean
+	-rm $(BIN)/*

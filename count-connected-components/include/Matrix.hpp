@@ -24,8 +24,7 @@ public:
 private:
     inline bool coords_validation(const globalTypes::CoordinatesType& coords) const
     {
-        return (coords.row < _rows && coords.col < _cols &&
-                (coords.row >= 0 && coords.col >=0));
+        return (coords.row < _rows && coords.col < _cols);
     }
 
     globalTypes::Algo decideAlgo();
